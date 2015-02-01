@@ -4,7 +4,7 @@
   <title><![CDATA[InfoSec Research]]></title>
   <link href="http://mislusnys.github.io/atom.xml" rel="self"/>
   <link href="http://mislusnys.github.io/"/>
-  <updated>2015-02-01T15:14:13-05:00</updated>
+  <updated>2015-02-01T15:15:32-05:00</updated>
   <id>http://mislusnys.github.io/</id>
   <author>
     <name><![CDATA[Mindaugas Slusnys]]></name>
@@ -12,14 +12,5 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[First Post]]></title>
-    <link href="http://mislusnys.github.io/blog/2015/02/01/first-post/"/>
-    <updated>2015-02-01T15:09:24-05:00</updated>
-    <id>http://mislusnys.github.io/blog/2015/02/01/first-post</id>
-    <content type="html"><![CDATA[<p>TEST POST</p>
-]]></content>
-  </entry>
   
 </feed>
