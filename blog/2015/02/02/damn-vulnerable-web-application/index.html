@@ -1,24 +1,96 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[/home/mislusnys]]></title>
-  <link href="http://mislusnys.github.io/atom.xml" rel="self"/>
-  <link href="http://mislusnys.github.io/"/>
-  <updated>2015-02-02T15:26:12-05:00</updated>
-  <id>http://mislusnys.github.io/</id>
-  <author>
-    <name><![CDATA[Mindaugas Slusnys]]></name>
-    
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Exploring Damn Vulnerable Web Application - /home/mislusnys</title>
+  <meta name="author" content="Mindaugas Slusnys">
 
   
-  <entry>
-    <title type="html"><![CDATA[Exploring Damn Vulnerable Web Application]]></title>
-    <link href="http://mislusnys.github.io/blog/2015/02/02/damn-vulnerable-web-application/"/>
-    <updated>2015-02-02T08:40:17-05:00</updated>
-    <id>http://mislusnys.github.io/blog/2015/02/02/damn-vulnerable-web-application</id>
-    <content type="html"><![CDATA[<h2>Intro</h2>
+  <meta name="description" content="Intro Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://mislusnys.github.io/blog/2015/02/02/damn-vulnerable-web-application/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="/home/mislusnys" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">/home/mislusnys</a></h1>
+  
+    <h2>Information Security Research</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:mislusnys.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Exploring Damn Vulnerable Web Application</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-02T08:40:17-05:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Intro</h2>
 
 <blockquote><p>Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.</p></blockquote>
 
@@ -33,7 +105,7 @@ We will use the lowest security setting (<strong>PHPIDS</strong>:disabled and <s
 
 <p>Our first task is to brute force HTTP based login form:</p>
 
-<p><img src="http://mislusnys.github.io/images/bf.png"></p>
+<p><img src="/images/bf.png"></p>
 
 <p>Using <code>burp</code> we find that parameters are transmitted via URL:</p>
 
@@ -74,7 +146,7 @@ We found valid login credentials: <code>admin:password</code></p>
 
 <h2>Command Execution</h2>
 
-<p><img src="http://mislusnys.github.io/images/ce.png"></p>
+<p><img src="/images/ce.png"></p>
 
 <p>This part of the app gives the current user the ability to ping a host.
 However it uses a vulnerable piece of code:</p>
@@ -120,7 +192,7 @@ However it uses a vulnerable piece of code:</p>
 
 <h2>CSRF</h2>
 
-<p><img src="http://mislusnys.github.io/images/csrf.png"></p>
+<p><img src="/images/csrf.png"></p>
 
 <p>CSRF is an attack in which an authenticated user (usually administrator) unknowingly executes a certain action.
 In our case the password change operation results in the following request:</p>
@@ -133,7 +205,7 @@ In our case the password change operation results in the following request:</p>
 
 <h2>File Inclusion</h2>
 
-<p><img src="http://mislusnys.github.io/images/fi.png"></p>
+<p><img src="/images/fi.png"></p>
 
 <p>This one is pretty straight forward. We can change the <code>page</code> variable to display sensitive information:</p>
 
@@ -221,7 +293,7 @@ In our case the password change operation results in the following request:</p>
 
 <h2>SQL Injection</h2>
 
-<p><img src="http://mislusnys.github.io/images/sqli.png"></p>
+<p><img src="/images/sqli.png"></p>
 
 <p>User input is unfiltered and used in the following query:</p>
 
@@ -443,7 +515,7 @@ We can use <code>sqlmap</code> to automate SQL injection exploitation (especiall
 
 <h2>Upload</h2>
 
-<p><img src="http://mislusnys.github.io/images/up.png"></p>
+<p><img src="/images/up.png"></p>
 
 <p>On the low security setting there are no restrictions on file upload. We can upload a php file containing simple code:</p>
 
@@ -478,7 +550,7 @@ We can use <code>sqlmap</code> to automate SQL injection exploitation (especiall
 
 <h2>XSS reflected</h2>
 
-<p><img src="http://mislusnys.github.io/images/xss.png"></p>
+<p><img src="/images/xss.png"></p>
 
 <p>Here whatever we enter gets included into page source.</p>
 
@@ -487,20 +559,123 @@ We can use <code>sqlmap</code> to automate SQL injection exploitation (especiall
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://mislusnys.github.io/images/cookie.png"></p>
+<p><img src="/images/cookie.png"></p>
 
 <h2>XSS stored</h2>
 
-<p><img src="http://mislusnys.github.io/images/xss2.png"></p>
+<p><img src="/images/xss2.png"></p>
 
 <p>Here the app is vulnerable to XSS again. However, this time the injected code is stored inside the database and is executed every time somebody visits the guestbook page.</p>
 
-<p><img src="http://mislusnys.github.io/images/stored.png"></p>
+<p><img src="/images/stored.png"></p>
 
 <h2>Summary</h2>
 
 <p>DVWA includes most common web server vulnerabilities and provides easy access to the vulnerable pieces of code. It is a great package for a beginner level pentest demo.</p>
-]]></content>
-  </entry>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
   
-</feed>
+
+<span class="byline author vcard">Posted by <span class="fn">Mindaugas Slusnys</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-02T08:40:17-05:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/pentest/'>pentest</a>, <a class='category' href='/blog/categories/web/'>web</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://mislusnys.github.io/blog/2015/02/02/damn-vulnerable-web-application/" data-via="" data-counturl="http://mislusnys.github.io/blog/2015/02/02/damn-vulnerable-web-application/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/02/02/damn-vulnerable-web-application/">Exploring Damn Vulnerable Web Application</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Mindaugas Slusnys -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
