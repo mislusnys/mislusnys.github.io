@@ -4,7 +4,7 @@
   <title><![CDATA[Category: owasp | /home/mislusnys]]></title>
   <link href="http://mislusnys.github.io/blog/categories/owasp/atom.xml" rel="self"/>
   <link href="http://mislusnys.github.io/"/>
-  <updated>2015-02-04T17:26:38-05:00</updated>
+  <updated>2015-02-05T05:41:39-05:00</updated>
   <id>http://mislusnys.github.io/</id>
   <author>
     <name><![CDATA[Mindaugas Slusnys]]></name>
@@ -21,11 +21,12 @@
     <content type="html"><![CDATA[<h2>Intro</h2>
 
 <p><em>OWASP Mutillidae II</em> is a free, open source, deliberately vulnerable web-application providing a target for web-security enthusiast. It features many vulnerabilities and challenges.
-Contains at least one vulnerability for each of the <em>OWASP Top Ten</em>.
-For this writeup Mutillidae version 2.6.17 inside XAMPP (in Windows 7) was used (with <em>Security Level</em> set to 0, unless otherwise specified).</p>
+Contains at least one vulnerability for each of the <em>OWASP Top Ten</em>.</p>
 
 <!--more-->
 
+
+<p>For this writeup Mutillidae version 2.6.17 inside XAMPP (Windows 7) was used (<em>Security Level: 0</em>).</p>
 
 <p>The OWASP Top 10 - 2013 is as follows:</p>
 
@@ -142,7 +143,7 @@ If we modify User-Agent string (via browser add-ons or burp) to be:</p>
 
 <p><img src="/images/2015/02/03/dns.png"></p>
 
-<p>In this page the user input is intended to a shell command&rsquo;s argument. However, most shells support stacked commands and if user input is not sanitized, we can execute additional commands in the context of web server.
+<p>In this page the user input is intended to a shell command&rsquo;s argument. However, most shells support stacked commands and if user input is not sanitized, we can execute additional commands in the context of the web server.
 In Linux we can add additional commands with <code>;</code> and in Windows with <code>&amp;</code> or <code>&amp;&amp;</code>:</p>
 
 <pre><code>&amp; dir
@@ -190,19 +191,82 @@ can do it by hand. We are looking for values that <code>XOR</code> with <code>0x
 <script>alert("Malicious blog post!")</script>
 
 
-<p>&#8220;`</p>
+<pre><code>
+Then upon viewing the blog post the victim's browser will execute the malicious code: 
 
-<p>Then upon viewing the blog post the victim&rsquo;s browser will execute the malicious code:</p>
+<img src="/images/2015/02/03/xss.png">
 
-<p><img src="/images/2015/02/03/xss.png"></p>
+## A4 Insecure Direct Object References
 
-<h2>A4 Insecure Direct Object References</h2>
+A direct object reference occurs when a developer exposes a reference to an internal implementation object, such as a file, directory, or database key. Without an access control check or other protection, attackers can manipulate these references to access unauthorized data.
 
-<p>A direct object reference occurs when a developer exposes a reference to an internal implementation object, such as a file, directory, or database key. Without an access control check or other protection, attackers can manipulate these references to access unauthorized data.</p>
+Mutillidae contains a few *Local File Inclusion (LFI)* vulnerabilities. One is in the `arbitrary-file-inclusion.php` page. 
+
+    http://192.168.1.66/mutillidae/index.php?page=arbitrary-file-inclusion.php
+
+Here any file specified in the `page` variable gets included in the current page. This allows attacker to execute any php file present on the web server or view contents of sensitive non php files (logs, configuration, etc.).
+In some cases this vulnerability allows to include remote php files (*Remote File Inclusion*), however, newer PHP configurations disable this by default. 
+
+Another vulnerable page is `text-file-viewer.php`. This page allows us to view text files from a remote server, by selecting them from a drop-down list. 
+However, if intercept the request with burp and change `textfile` variable, we can view the source code of any
+web server files. We can view the source code of the current page:
+</code></pre>
+
+<pre><code>try {           
+    switch ($_SESSION["security-level"]){
+        case "0": // This code is insecure
+        case "1": // This code is insecure
+            $lUseTokenization = FALSE;
+            $lEncodeOutput = FALSE;
+            $lProtectAgainstMethodTampering = FALSE;
+        break;
+
+        case "2":
+        case "3":
+        case "4":
+        case "5": // This code is fairly secure
+            $lUseTokenization = TRUE;
+            $lEncodeOutput = TRUE;
+            $lProtectAgainstMethodTampering = TRUE;
+        break;
+    }// end switch ($_SESSION["security-level"])
+}catch(Exception $e){
+    echo $CustomErrorHandler-&gt;FormatError($e, "Error in text file viewer. Cannot load file.");
+}// end try
+</code></pre>
+
+<p>&hellip;
+&#8220;`</p>
 
 <h2>A5 Security Misconfiguration</h2>
 
 <p>Good security requires having a secure configuration defined and deployed for the application, frameworks, application server, web server, database server, and platform. Secure settings should be defined, implemented, and maintained, as defaults are often insecure. Additionally, software should be kept up to date.</p>
+
+<p>Most common security misconfiguration is relying on &ldquo;hidden&rdquo; directories and files. The only security here being the assumption that the attacker will not find out the names of such resources, because they have no links to them
+from the main pages. However, these names can be guessed or brute forced. We have a few of them in our web server. World accessible <em>passwords</em> folder:</p>
+
+<p><img src="/images/2015/02/03/pass.png"></p>
+
+<p>Or <em>data</em> folder:</p>
+
+<p><img src="/images/2015/02/03/data.png"></p>
+
+<p>Another common misconfiguration is unrestricted file upload. Most of the time files containing executable code (php, asp, js, etc.) are not allowed. However, if restrictions are implemented badly or not present at all, then attacker
+can execute code on the server via file upload:</p>
+
+<p><img src="/images/2015/02/03/upload.png"></p>
+
+<p>After uploading the shell, we can browse to it and execute commands on the server:</p>
+
+<pre><code>http://192.168.1.66/mutillidae/upload/shell.php?cmd=dir
+</code></pre>
+
+<pre><code>Volume in drive C has no label. Volume Serial Number is E2B8-4C80 Directory of C:\xampp\htdocs\mutillidae\upload 02/05/2015 11:24 AM
+. 02/05/2015 11:24 AM
+.. 02/05/2015 11:05 AM 132 shell.php 1 File(s) 132 bytes 2 Dir(s) 12,596,895,744 bytes free dir
+</code></pre>
+
+<h3>To be continued&hellip;</h3>
 
 <!--
 

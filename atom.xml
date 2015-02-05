@@ -4,7 +4,7 @@
   <title><![CDATA[/home/mislusnys]]></title>
   <link href="http://mislusnys.github.io/atom.xml" rel="self"/>
   <link href="http://mislusnys.github.io/"/>
-  <updated>2015-02-04T17:26:38-05:00</updated>
+  <updated>2015-02-05T05:41:39-05:00</updated>
   <id>http://mislusnys.github.io/</id>
   <author>
     <name><![CDATA[Mindaugas Slusnys]]></name>
@@ -21,11 +21,12 @@
     <content type="html"><![CDATA[<h2>Intro</h2>
 
 <p><em>OWASP Mutillidae II</em> is a free, open source, deliberately vulnerable web-application providing a target for web-security enthusiast. It features many vulnerabilities and challenges.
-Contains at least one vulnerability for each of the <em>OWASP Top Ten</em>.
-For this writeup Mutillidae version 2.6.17 inside XAMPP (in Windows 7) was used (with <em>Security Level</em> set to 0, unless otherwise specified).</p>
+Contains at least one vulnerability for each of the <em>OWASP Top Ten</em>.</p>
 
 <!--more-->
 
+
+<p>For this writeup Mutillidae version 2.6.17 inside XAMPP (Windows 7) was used (<em>Security Level: 0</em>).</p>
 
 <p>The OWASP Top 10 - 2013 is as follows:</p>
 
@@ -192,7 +193,7 @@ If we modify User-Agent string (via browser add-ons or burp) to be:</p>
 
 <p><img src="http://mislusnys.github.io/images/2015/02/03/dns.png"></p>
 
-<p>In this page the user input is intended to a shell command&rsquo;s argument. However, most shells support stacked commands and if user input is not sanitized, we can execute additional commands in the context of web server.
+<p>In this page the user input is intended to a shell command&rsquo;s argument. However, most shells support stacked commands and if user input is not sanitized, we can execute additional commands in the context of the web server.
 In Linux we can add additional commands with <code>;</code> and in Windows with <code>&amp;</code> or <code>&amp;&amp;</code>:</p>
 
 <pre><code>&amp; dir
@@ -248,9 +249,98 @@ can do it by hand. We are looking for values that <code>XOR</code> with <code>0x
 
 <p>A direct object reference occurs when a developer exposes a reference to an internal implementation object, such as a file, directory, or database key. Without an access control check or other protection, attackers can manipulate these references to access unauthorized data.</p>
 
+<p>Mutillidae contains a few <em>Local File Inclusion (LFI)</em> vulnerabilities. One is in the <code>arbitrary-file-inclusion.php</code> page.</p>
+
+<pre><code>http://192.168.1.66/mutillidae/index.php?page=arbitrary-file-inclusion.php
+</code></pre>
+
+<p>Here any file specified in the <code>page</code> variable gets included in the current page. This allows attacker to execute any php file present on the web server or view contents of sensitive non php files (logs, configuration, etc.).
+In some cases this vulnerability allows to include remote php files (<em>Remote File Inclusion</em>), however, newer PHP configurations disable this by default.</p>
+
+<p>Another vulnerable page is <code>text-file-viewer.php</code>. This page allows us to view text files from a remote server, by selecting them from a drop-down list.
+However, if intercept the request with burp and change <code>textfile</code> variable, we can view the source code of any
+web server files. We can view the source code of the current page:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">try</span> <span class="p">{</span>           
+</span><span class='line'>  <span class="k">switch</span> <span class="p">(</span><span class="nv">$_SESSION</span><span class="p">[</span><span class="s2">&quot;security-level&quot;</span><span class="p">]){</span>
+</span><span class='line'>              <span class="k">case</span> <span class="s2">&quot;0&quot;</span><span class="o">:</span> <span class="c1">// This code is insecure</span>
+</span><span class='line'>              <span class="k">case</span> <span class="s2">&quot;1&quot;</span><span class="o">:</span> <span class="c1">// This code is insecure</span>
+</span><span class='line'>          <span class="nv">$lUseTokenization</span> <span class="o">=</span> <span class="k">FALSE</span><span class="p">;</span>
+</span><span class='line'>          <span class="nv">$lEncodeOutput</span> <span class="o">=</span> <span class="k">FALSE</span><span class="p">;</span>
+</span><span class='line'>          <span class="nv">$lProtectAgainstMethodTampering</span> <span class="o">=</span> <span class="k">FALSE</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>          
+</span><span class='line'>      <span class="k">case</span> <span class="s2">&quot;2&quot;</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">case</span> <span class="s2">&quot;3&quot;</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">case</span> <span class="s2">&quot;4&quot;</span><span class="o">:</span>
+</span><span class='line'>          <span class="k">case</span> <span class="s2">&quot;5&quot;</span><span class="o">:</span> <span class="c1">// This code is fairly secure</span>
+</span><span class='line'>          <span class="nv">$lUseTokenization</span> <span class="o">=</span> <span class="k">TRUE</span><span class="p">;</span>
+</span><span class='line'>          <span class="nv">$lEncodeOutput</span> <span class="o">=</span> <span class="k">TRUE</span><span class="p">;</span>
+</span><span class='line'>          <span class="nv">$lProtectAgainstMethodTampering</span> <span class="o">=</span> <span class="k">TRUE</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span><span class="c1">// end switch ($_SESSION[&quot;security-level&quot;])</span>
+</span><span class='line'><span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">Exception</span> <span class="nv">$e</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">echo</span> <span class="nv">$CustomErrorHandler</span><span class="o">-&gt;</span><span class="na">FormatError</span><span class="p">(</span><span class="nv">$e</span><span class="p">,</span> <span class="s2">&quot;Error in text file viewer. Cannot load file.&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span><span class="c1">// end try</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>A5 Security Misconfiguration</h2>
 
 <p>Good security requires having a secure configuration defined and deployed for the application, frameworks, application server, web server, database server, and platform. Secure settings should be defined, implemented, and maintained, as defaults are often insecure. Additionally, software should be kept up to date.</p>
+
+<p>Most common security misconfiguration is relying on &ldquo;hidden&rdquo; directories and files. The only security here being the assumption that the attacker will not find out the names of such resources, because they have no links to them
+from the main pages. However, these names can be guessed or brute forced. We have a few of them in our web server. World accessible <em>passwords</em> folder:</p>
+
+<p><img src="http://mislusnys.github.io/images/2015/02/03/pass.png"></p>
+
+<p>Or <em>data</em> folder:</p>
+
+<p><img src="http://mislusnys.github.io/images/2015/02/03/data.png"></p>
+
+<p>Another common misconfiguration is unrestricted file upload. Most of the time files containing executable code (php, asp, js, etc.) are not allowed. However, if restrictions are implemented badly or not present at all, then attacker
+can execute code on the server via file upload:</p>
+
+<p><img src="http://mislusnys.github.io/images/2015/02/03/upload.png"></p>
+
+<p>After uploading the shell, we can browse to it and execute commands on the server:</p>
+
+<pre><code>http://192.168.1.66/mutillidae/upload/shell.php?cmd=dir
+</code></pre>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">Volume</span> <span class="nx">in</span> <span class="nx">drive</span> <span class="nx">C</span> <span class="nx">has</span> <span class="nx">no</span> <span class="nx">label</span><span class="o">.</span> <span class="nx">Volume</span> <span class="nx">Serial</span> <span class="nx">Number</span> <span class="nx">is</span> <span class="nx">E2B8</span><span class="o">-</span><span class="mi">4</span><span class="nx">C80</span> <span class="nx">Directory</span> <span class="nx">of</span> <span class="nx">C</span><span class="o">:</span><span class="nx">\xampp\htdocs\mutillidae\upload</span> <span class="mo">02</span><span class="o">/</span><span class="mo">05</span><span class="o">/</span><span class="mi">2015</span> <span class="mi">11</span><span class="o">:</span><span class="mi">24</span> <span class="nx">AM</span>
+</span><span class='line'><span class="o">.</span> <span class="mo">02</span><span class="o">/</span><span class="mo">05</span><span class="o">/</span><span class="mi">2015</span> <span class="mi">11</span><span class="o">:</span><span class="mi">24</span> <span class="nx">AM</span>
+</span><span class='line'><span class="o">..</span> <span class="mo">02</span><span class="o">/</span><span class="mo">05</span><span class="o">/</span><span class="mi">2015</span> <span class="mi">11</span><span class="o">:</span><span class="mo">05</span> <span class="nx">AM</span> <span class="mi">132</span> <span class="nx">shell</span><span class="o">.</span><span class="nx">php</span> <span class="mi">1</span> <span class="nx">File</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="mi">132</span> <span class="nx">bytes</span> <span class="mi">2</span> <span class="nx">Dir</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="mi">12</span><span class="p">,</span><span class="mi">596</span><span class="p">,</span><span class="mi">895</span><span class="p">,</span><span class="mi">744</span> <span class="nx">bytes</span> <span class="nx">free</span> <span class="nb">dir</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>To be continued&hellip;</h3>
 
 <!--
 
