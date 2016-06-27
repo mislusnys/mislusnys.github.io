@@ -1484,7 +1484,7 @@ int main(int argc, char **argv, char **envp)
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;For this level we can override the &lt;code&gt;getuid()&lt;/code&gt;function using the &lt;code&gt;LD_PRELOAD&lt;/code&gt; &lt;a href=&#34;(https://rafalcieslak.wordpress.com/2013/04/02/dynamic-linker-tricks-using-ld_preload-to-cheat-inject-features-and-investigate-programs/)&#34;&gt;trick&lt;/a&gt;. The original binary is setuid - which means that it discards the LD_PRELOAD variable. So this technique does not work for privilege escalation in our case, but instead can be used to divert execution path without modifying the binary itself.
+&lt;p&gt;For this level we can override the &lt;code&gt;getuid()&lt;/code&gt;function using the &lt;code&gt;LD_PRELOAD&lt;/code&gt; &lt;a href=&#34;https://rafalcieslak.wordpress.com/2013/04/02/dynamic-linker-tricks-using-ld_preload-to-cheat-inject-features-and-investigate-programs/&#34;&gt;trick&lt;/a&gt;. The original binary is setuid - which means that it discards the LD_PRELOAD variable. So this technique does not work for privilege escalation in our case, but instead can be used to divert execution path without modifying the binary itself.
 For this to work, we need to copy the executable somewhere else:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;level13@nebula:~$ cat uid.c
