@@ -53,15 +53,15 @@
 
     <ul class="sidebar-nav">
       <li class="sidebar-nav-item">
+      <a href="https://github.com/mislusnys"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/mislusnys"><i class="fa fa-linkedin-square fa-3x"></i></a>
       
       
       
       
-      
-      
-      
-      
-      
+      <a href="http://mislusnys.github.io/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
       </li>
     </ul>
 
@@ -88,7 +88,7 @@ network code and 3 final levels with combinations of all the above.</p>
 
 <p>This post contains solutions for the five format string levels.</p>
 
-<h3 id="format0:3b2cdc5fa20dcbff92d76d9edfd44fbc">Format0</h3>
+<h3 id="format0">Format0</h3>
 
 <blockquote>
 <p>This level introduces format strings, and how attacker supplied format strings can modify the execution flow of programs.</p>
@@ -103,7 +103,7 @@ network code and 3 final levels with combinations of all the above.</p>
 <p>This level is at /opt/protostar/bin/format0</p>
 </blockquote>
 
-<h4 id="source-code:3b2cdc5fa20dcbff92d76d9edfd44fbc">Source Code</h4>
+<h4 id="source-code">Source Code</h4>
 
 <pre><code>#include &lt;stdlib.h&gt;
 #include &lt;unistd.h&gt;
@@ -148,7 +148,7 @@ user@protostar:/opt/protostar/bin$
 
 <p>This method uses 8 bytes of input.</p>
 
-<h3 id="format1:3b2cdc5fa20dcbff92d76d9edfd44fbc">Format1</h3>
+<h3 id="format1">Format1</h3>
 
 <blockquote>
 <p>This level shows how format strings can be used to modify arbitrary memory locations.</p>
@@ -162,7 +162,7 @@ user@protostar:/opt/protostar/bin$
 <p>This level is at /opt/protostar/bin/format1</p>
 </blockquote>
 
-<h4 id="source-code-1:3b2cdc5fa20dcbff92d76d9edfd44fbc">Source Code</h4>
+<h4 id="source-code-1">Source Code</h4>
 
 <pre><code>#include &lt;stdlib.h&gt;
 #include &lt;unistd.h&gt;
@@ -219,7 +219,7 @@ user@protostar:/opt/protostar/bin$
 8�AAAA00804960c.bffff668.8048469.b7fd8304.b7fd7ff4.bffff668.8048435.bffff830.b7ff1040.804845b.b7fd7ff4.8048450.0.bffff6e8.b7eadc76.2.bffff714.bffff720.b7fe1848.bffff6d0.ffffffff.b7ffeff4.804824d.1.bffff6d0.b7ff0626.b7fffab0.b7fe1b28.b7fd7ff4.0.0.bffff6e8.aaa339a8.80f7afb8.0.0.0.2.8048340.0.b7ff6210.b7eadb9b.b7ffeff4.2.8048340.0.8048361.804841c.2.bffff714.8048450.8048440.b7ff1040.bffff70c.b7fff8f8.2.bffff826.bffff830.0.bffff9ba.bffff9c8.bffff9d3.bffff9f4.bffffa07.bffffa11.bfffff01.bfffff3f.bfffff53.bfffff6a.bfffff7b.bfffff83.bfffff93.bfffffa0.bfffffd4.bfffffe0.0.20.b7fe2414.21.b7fe2000.10.78bf3ff.6.1000.11.64.3.8048034.4.20.5.7.7.b7fe3000.8.0.9.8048340.b.3e9.c.0.d.3e9.e.3e9.17.1.19.bffff80b.1f.bffffff2.f.bffff81b.0.0.0.b8000000.ecbb7eda.506baaa7.48d611bb.69d839a6.363836.0.2f2e0000.6d726f66.317461.you have modified the target :)
 </code></pre>
 
-<h3 id="format2:3b2cdc5fa20dcbff92d76d9edfd44fbc">Format2</h3>
+<h3 id="format2">Format2</h3>
 
 <blockquote>
 <p>This level moves on from format1 and shows how specific values can be written in memory.</p>
@@ -227,7 +227,7 @@ user@protostar:/opt/protostar/bin$
 <p>This level is at /opt/protostar/bin/format2</p>
 </blockquote>
 
-<h4 id="source-code-2:3b2cdc5fa20dcbff92d76d9edfd44fbc">Source Code</h4>
+<h4 id="source-code-2">Source Code</h4>
 
 <pre><code>#include &lt;stdlib.h&gt;
 #include &lt;unistd.h&gt;
@@ -291,7 +291,7 @@ you have modified the target :)
 user@protostar:/opt/protostar/bin$ 
 </code></pre>
 
-<h3 id="format3:3b2cdc5fa20dcbff92d76d9edfd44fbc">Format3</h3>
+<h3 id="format3">Format3</h3>
 
 <blockquote>
 <p>This level advances from format2 and shows how to write more than 1 or 2 bytes of memory to the process. This also teaches you to carefully control what data is being written to the process memory.</p>
@@ -299,7 +299,7 @@ user@protostar:/opt/protostar/bin$
 <p>This level is at /opt/protostar/bin/format3</p>
 </blockquote>
 
-<h4 id="source-code-3:3b2cdc5fa20dcbff92d76d9edfd44fbc">Source Code</h4>
+<h4 id="source-code-3">Source Code</h4>
 
 <pre><code>#include &lt;stdlib.h&gt;
 #include &lt;unistd.h&gt;
@@ -394,7 +394,7 @@ you have modified the target :)
 user@protostar:/opt/protostar/bin$ 
 </code></pre>
 
-<h5 id="using-short-writes:3b2cdc5fa20dcbff92d76d9edfd44fbc">Using Short Writes</h5>
+<h5 id="using-short-writes">Using Short Writes</h5>
 
 <p>We can achieve the same effect of writing a full 4-byte value by doing just two write operations. We can use a special write operation which writes
 short int types - the <code>%hn</code> parameter. Not only it shortens the exploit string itself, it also prevents a side effect of overwriting additional memory.
@@ -416,7 +416,7 @@ user@protostar:/opt/protostar/bin$ echo `python -c &quot;print '\xf4\x96\x04\x08
 you have modified the target :)
 </code></pre>
 
-<h3 id="format4:3b2cdc5fa20dcbff92d76d9edfd44fbc">Format4</h3>
+<h3 id="format4">Format4</h3>
 
 <blockquote>
 <p>%p format4 looks at one method of redirecting execution in a process.</p>
@@ -430,7 +430,7 @@ you have modified the target :)
 <p>This level is at /opt/protostar/bin/format4</p>
 </blockquote>
 
-<h4 id="source-code-4:3b2cdc5fa20dcbff92d76d9edfd44fbc">Source Code</h4>
+<h4 id="source-code-4">Source Code</h4>
 
 <pre><code>#include &lt;stdlib.h&gt;
 #include &lt;unistd.h&gt;

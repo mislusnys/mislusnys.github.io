@@ -53,15 +53,15 @@
 
     <ul class="sidebar-nav">
       <li class="sidebar-nav-item">
+      <a href="https://github.com/mislusnys"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/mislusnys"><i class="fa fa-linkedin-square fa-3x"></i></a>
       
       
       
       
-      
-      
-      
-      
-      
+      <a href="http://mislusnys.github.io/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
       </li>
     </ul>
 
@@ -83,7 +83,7 @@
     </span>
     
 
-<h2 id="intro:a278ed06f786dfe478032a0f72deba1a">Intro</h2>
+<h2 id="intro">Intro</h2>
 
 <p>Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.</p>
 
@@ -91,7 +91,7 @@
 We will use the version that is bundled in the <a href="http://sourceforge.net/projects/metasploitable/files/Metasploitable2/">Metasploitable 2</a> VM.
 We will use the lowest security setting (<em>PHPIDS:disabled</em> and <em>Security Level:low</em>).</p>
 
-<h2 id="1-brute-force:a278ed06f786dfe478032a0f72deba1a">1. Brute Force</h2>
+<h2 id="1-brute-force">1. Brute Force</h2>
 
 <p>Our first task is to brute force HTTP based login form:</p>
 
@@ -120,7 +120,7 @@ Hydra (http://www.thc.org/thc-hydra) finished at 2015-02-02 09:13:57
 
 <p>We found valid login credentials: <code>admin:password</code></p>
 
-<h2 id="2-command-execution:a278ed06f786dfe478032a0f72deba1a">2. Command Execution</h2>
+<h2 id="2-command-execution">2. Command Execution</h2>
 
 <p><img src="/images/ce.png" alt="Command Execution" /></p>
 
@@ -149,7 +149,7 @@ drwxr-xr-x  2 www-data www-data 4096 May 20  2012 help
 drwxr-xr-x  2 www-data www-data 4096 May 20  2012 source
 </code></pre>
 
-<h2 id="3-cross-site-request-forgery:a278ed06f786dfe478032a0f72deba1a">3. Cross Site Request Forgery</h2>
+<h2 id="3-cross-site-request-forgery">3. Cross Site Request Forgery</h2>
 
 <p><img src="/images/csrf.png" alt="CSRF" /></p>
 
@@ -160,7 +160,7 @@ In our case the password change operation results in the following request:</p>
 
 <p>If we can trick an authenticated user to make this request, we can change this user&rsquo;s password. Usually this is done by tricking the user into visiting a page controlled by the attacker with malicious request embedded inside <code>img</code>, <code>iframe</code> tags or inside malicious javascript code.</p>
 
-<h2 id="4-file-inclusion:a278ed06f786dfe478032a0f72deba1a">4. File Inclusion</h2>
+<h2 id="4-file-inclusion">4. File Inclusion</h2>
 
 <p><img src="/images/fi.png" alt="File Inclusion" /></p>
 
@@ -207,7 +207,7 @@ statd:x:114:65534::/var/lib/nfs:/bin/false
 snmp:x:115:65534::/var/lib/snmp:/bin/false 
 </code></pre>
 
-<h2 id="5-1-sql-injection:a278ed06f786dfe478032a0f72deba1a">5.1 SQL Injection</h2>
+<h2 id="5-1-sql-injection">5.1 SQL Injection</h2>
 
 <p><img src="/images/sqli.png" alt="SQLI" /></p>
 
@@ -315,7 +315,7 @@ Surname: 5f4dcc3b5aa765d61d8327deb882cf99
 
 <p>Looks like the passwords are MD5 hashed. However, they are easily found to be <code>test</code>, <code>abc123</code>, <code>charley</code>, <code>letmein</code> and <code>password</code> respectively.</p>
 
-<h2 id="5-2-sql-injection-blind:a278ed06f786dfe478032a0f72deba1a">5.2 SQL Injection(Blind)</h2>
+<h2 id="5-2-sql-injection-blind">5.2 SQL Injection(Blind)</h2>
 
 <p>The blind SQL injection case uses the same vulnerable SQL query. The only difference is that the errors (from MySQL) are not shown to the user.
 We can use <code>sqlmap</code> to automate SQL injection exploitation (especially in blind injection cases where injection uses MANY boolean or time based queries)</p>
@@ -336,7 +336,7 @@ Table: users
 +---------+---------+-------------------------------------------------------+----------------------------------+-----------+------------+
 </code></pre>
 
-<h2 id="6-file-upload:a278ed06f786dfe478032a0f72deba1a">6. File Upload</h2>
+<h2 id="6-file-upload">6. File Upload</h2>
 
 <p><img src="/images/up.png" alt="File Upload" /></p>
 
@@ -358,7 +358,7 @@ if(isset($_REQUEST['cmd'])){
 
 <p><code>http://192.168.52.129/dvwa/hackable/uploads/shell.php?cmd=ls -al</code></p>
 
-<h2 id="7-1-reflected-xss:a278ed06f786dfe478032a0f72deba1a">7.1 Reflected XSS</h2>
+<h2 id="7-1-reflected-xss">7.1 Reflected XSS</h2>
 
 <p><img src="/images/xss.png" alt="XSS" /></p>
 
@@ -368,7 +368,7 @@ if(isset($_REQUEST['cmd'])){
 
 <p><img src="/images/cookie.png" alt="Cookie" /></p>
 
-<h2 id="7-2-stored-xss:a278ed06f786dfe478032a0f72deba1a">7.2 Stored XSS</h2>
+<h2 id="7-2-stored-xss">7.2 Stored XSS</h2>
 
 <p><img src="/images/xss2.png" alt="XSS" /></p>
 
@@ -376,7 +376,7 @@ if(isset($_REQUEST['cmd'])){
 
 <p><img src="/images/stored.png" alt="Stored XSS" /></p>
 
-<h2 id="summary:a278ed06f786dfe478032a0f72deba1a">Summary</h2>
+<h2 id="summary">Summary</h2>
 
 <p>DVWA includes most common web server vulnerabilities and provides easy access to the vulnerable pieces of code. It is a great package for a beginner level pentest demo.</p>
 

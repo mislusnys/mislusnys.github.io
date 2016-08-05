@@ -53,15 +53,15 @@
 
     <ul class="sidebar-nav">
       <li class="sidebar-nav-item">
+      <a href="https://github.com/mislusnys"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/mislusnys"><i class="fa fa-linkedin-square fa-3x"></i></a>
       
       
       
       
-      
-      
-      
-      
-      
+      <a href="http://mislusnys.github.io/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
       </li>
     </ul>
 
@@ -86,7 +86,7 @@
 <p>This post is continuation from <a href="/blog/2015/02/03/owasp-top-10-in-mutillidae-part1">previous post</a>. We explore less common, however, still potentially very dangerous <em>OWASP Top 10</em> threats.
 Here we go through 6th to 10th places in the list.</p>
 
-<h2 id="a6-sensitive-data-exposure:dae1cab322183177c511022ba8a7d0b0">A6 Sensitive Data Exposure</h2>
+<h2 id="a6-sensitive-data-exposure">A6 Sensitive Data Exposure</h2>
 
 <p>Many web applications do not properly protect sensitive data, such as credit cards, tax IDs, and authentication credentials. Attackers may steal or modify such weakly protected data to conduct credit card fraud, identity theft, or other crimes. Sensitive data deserves extra protection such as encryption at rest or in transit, as well as special precautions when exchanged with the browser.</p>
 
@@ -102,7 +102,7 @@ rather than HTML comments, but we all know those
 security instructors are just making all this up. --&gt;			&lt;!-- End Content --&gt;
 </code></pre>
 
-<h2 id="a7-missing-function-level-access-control:dae1cab322183177c511022ba8a7d0b0">A7 Missing Function Level Access Control</h2>
+<h2 id="a7-missing-function-level-access-control">A7 Missing Function Level Access Control</h2>
 
 <p>Most web applications verify function level access rights before making that functionality visible in the UI. However, applications need to perform the same access control checks on the server when each function is accessed. If requests are not verified, attackers will be able to forge requests in order to access functionality without proper authorization.</p>
 
@@ -125,7 +125,7 @@ contains information about few legitimate accounts).</p>
 <p>Another &ldquo;security by obscurity&rdquo; example is &ldquo;secret&rdquo; administrative or configuration pages. Using Burp-Intruder in sniper mode or dirbuster we could find secret pages. Sometimes they are very obvious such as
 <em>secret.php, admin.php, administrator.php</em>. In our case <em>phpmyadmin.php</em> page is accessible to anyone, even anonymous user.</p>
 
-<h2 id="a8-cross-site-request-forgery-csrf:dae1cab322183177c511022ba8a7d0b0">A8 Cross-Site Request Forgery (CSRF)</h2>
+<h2 id="a8-cross-site-request-forgery-csrf">A8 Cross-Site Request Forgery (CSRF)</h2>
 
 <p>A CSRF attack forces a logged-on victim&rsquo;s browser to send a forged HTTP request, including the victim&rsquo;s session cookie and any other automatically included authentication information, to a vulnerable web application. This allows the attacker to force the victim&rsquo;s browser to generate requests the vulnerable application thinks are legitimate requests from the victim.</p>
 
@@ -150,7 +150,7 @@ contains information about few legitimate accounts).</p>
 
 <p><img src="/images/2015/02/06/blog.png" alt="blog" /></p>
 
-<h2 id="a9-using-components-with-known-vulnerabilities:dae1cab322183177c511022ba8a7d0b0">A9 Using Components with Known Vulnerabilities</h2>
+<h2 id="a9-using-components-with-known-vulnerabilities">A9 Using Components with Known Vulnerabilities</h2>
 
 <p>Components, such as libraries, frameworks, and other software modules, almost always run with full privileges. If a vulnerable component is exploited, such an attack can facilitate serious data loss or server takeover. Applications using components with known vulnerabilities may undermine application defenses and enable a range of possible attacks and impacts.</p>
 
@@ -160,7 +160,7 @@ contains information about few legitimate accounts).</p>
 
 <p>However, in this case the server components have no known vulnerabilities (at the time of writing).</p>
 
-<h2 id="a10-unvalidated-redirects-and-forwards:dae1cab322183177c511022ba8a7d0b0">A10 Unvalidated Redirects and Forwards</h2>
+<h2 id="a10-unvalidated-redirects-and-forwards">A10 Unvalidated Redirects and Forwards</h2>
 
 <p>Web applications frequently redirect and forward users to other pages and websites, and use untrusted data to determine the destination pages. Without proper validation, attackers can redirect victims to phishing or malware sites, or use forwards to access unauthorized pages.</p>
 
@@ -170,7 +170,7 @@ contains information about few legitimate accounts).</p>
 
 <p>Here, the <code>forwardurl</code> specifies the redirection url and the attacker can point to a malicious page. Unvalidated redirects can increase the success rate in phishing attacks, because the first part of the link looks &ldquo;legit&rdquo;.</p>
 
-<h2 id="summary:dae1cab322183177c511022ba8a7d0b0">Summary</h2>
+<h2 id="summary">Summary</h2>
 
 <p><em>OWASP Top 10</em> describes most common web vulnerabilities found in the real world. <em>Mutillidae II</em> is deliberately vulnerable web application and contains at least one vulnerability from each OWASP category. It provides good
 insight into majority of web related exploitation methods.</p>
