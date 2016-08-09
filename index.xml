@@ -6,8 +6,70 @@
     <description>Recent content on Infosec Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 26 Jun 2016 03:10:18 -0400</lastBuildDate>
+    <lastBuildDate>Tue, 09 Aug 2016 19:03:56 +0200</lastBuildDate>
     <atom:link href="http://mislusnys.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Resources</title>
+      <link>http://mislusnys.github.io/resources/</link>
+      <pubDate>Tue, 09 Aug 2016 19:03:56 +0200</pubDate>
+      
+      <guid>http://mislusnys.github.io/resources/</guid>
+      <description>
+
+&lt;h2 id=&#34;penetration-testing-resources&#34;&gt;Penetration Testing Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#penetration-testing-resources&#34;&gt;Penetration Testing Resources&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#exploit-development-and-reverse-engineering&#34;&gt;Exploit development and Reverse Engineering&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#links-and-lists&#34;&gt;Links and lists&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#videos&#34;&gt;Videos&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;penetration-testing-resources-1&#34;&gt;Penetration Testing Resources&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.pentester.tips/&#34;&gt;Pentester Tips&lt;/a&gt; - Penetration Testing Tips, Skills Matrix&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://pwnwiki.io/&#34;&gt;PwnWiki&lt;/a&gt; - collection TTPs (tools, tactics, and procedures) for what to do after access has been gained.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.wechall.net/&#34;&gt;Wechall&lt;/a&gt; - wargames, challenges&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/ctfs&#34;&gt;CTF Writeups&lt;/a&gt; - CTF writeups&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://lab.pentestit.ru/&#34;&gt;Pentestit Lab&lt;/a&gt; - lab to practice pentesting skills&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;exploit-development-and-reverse-engineering&#34;&gt;Exploit Development and Reverse Engineering&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/longld/peda&#34;&gt;GDB-peda&lt;/a&gt; - Python Exploit Development Assistance for GDB&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://rada.re/r/index.html&#34;&gt;Radare2&lt;/a&gt; - Opensource, crossplatform reverse engineering framework.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://x64dbg.com/&#34;&gt;x64_dbg&lt;/a&gt; - An open-source x64/x32 debugger for windows.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/joxeankoret/pyew&#34;&gt;Pyew&lt;/a&gt; - A Python tool for static malware analysis.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://inguma.eu/projects/bokken&#34;&gt;Bokken&lt;/a&gt; - GUI for Pyew Radare2.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/wisk/medusa&#34;&gt;Medusa disassembler&lt;/a&gt; - An open source interactive disassembler&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/joelpx/plasma&#34;&gt;plasma&lt;/a&gt; - Interactive disassembler for x86/ARM/MIPS. Generates indented pseudo-code with colored syntax code.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://hexed.it&#34;&gt;HexEdit.js&lt;/a&gt; - Browser-based hex editing&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;links-and-lists&#34;&gt;Links and Lists&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/enaqx/awesome-pentest&#34;&gt;Awesome Penetration Testing&lt;/a&gt; - Pentest resources&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/jshaw87/Cheatsheets&#34;&gt;Cheat Sheets&lt;/a&gt; - severeal cheat sheets&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;videos&#34;&gt;Videos&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=sYaE40kkEos&#34;&gt;Responder for Purple Teams Kevin Gennuso&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=FDvTVJVtxac&#34;&gt;Hunting high value targets in corporate networks Josh Stone&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=29RbO5bftwo&#34;&gt;Fuzz Smarter Not Harder An afl fuzz Primer Craig Young&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=lGjc3kl1zXo&#34;&gt;Fabian Yamaguchi – Mining for Bugs with Graph Database Queries&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=rz0SNEFZ8h0&#34;&gt;Shahar Tal - I Hunt TR-069 Admins: Pwning ISPs Like a Boss&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=rknpKIxT7NM&#34;&gt;Sean Metcalfe - Red vs Blue: Modern Active Directory Attacks &amp;amp; Defense&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=LOsesi3QkXY&#34;&gt;Sean Pierce - Abusing Native Shims for Post Exploitation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=xBd6p-Lz3kE&#34;&gt;WhyMI so Sexy: WMI Attacks - Real Time Defense and Advanced Forensics&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Protostar Format String (Levels 0-4)</title>
