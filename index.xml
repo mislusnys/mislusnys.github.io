@@ -39,6 +39,11 @@
 &lt;h4 id=&#34;exploit-development-and-reverse-engineering&#34;&gt;Exploit Development and Reverse Engineering&lt;/h4&gt;
 
 &lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://ilspy.net/&#34;&gt;ILSpy&lt;/a&gt; - .NET decompiler&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.jetbrains.com/decompiler/&#34;&gt;dotPeek&lt;/a&gt; - .NET decompiler&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.ntcore.com/exsuite.php&#34;&gt;CFF Explorer&lt;/a&gt; - PE tools&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rohitab.com/apimonitor&#34;&gt;API Monitor&lt;/a&gt; - Win API monitor&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://mh-nexus.de/en/downloads.php?product=HxD&#34;&gt;HxD&lt;/a&gt; - Windows Hex Editor&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/longld/peda&#34;&gt;GDB-peda&lt;/a&gt; - Python Exploit Development Assistance for GDB&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://rada.re/r/index.html&#34;&gt;Radare2&lt;/a&gt; - Opensource, crossplatform reverse engineering framework.&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://x64dbg.com/&#34;&gt;x64_dbg&lt;/a&gt; - An open-source x64/x32 debugger for windows.&lt;/li&gt;
@@ -53,7 +58,7 @@
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/enaqx/awesome-pentest&#34;&gt;Awesome Penetration Testing&lt;/a&gt; - Pentest resources&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/jshaw87/Cheatsheets&#34;&gt;Cheat Sheets&lt;/a&gt; - severeal cheat sheets&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/jshaw87/Cheatsheets&#34;&gt;Cheat Sheets&lt;/a&gt; - several cheat sheets&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&#34;videos&#34;&gt;Videos&lt;/h3&gt;
