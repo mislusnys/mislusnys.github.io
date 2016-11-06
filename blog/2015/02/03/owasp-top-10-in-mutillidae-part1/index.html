@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="http://mislusnys.github.io/css/poole-overrides.css">
   <link rel="stylesheet" href="http://mislusnys.github.io/css/hyde-overrides.css">
   <link rel="stylesheet" href="http://mislusnys.github.io/css/hyde-x.css">
-  <link rel="stylesheet" href="http://mislusnys.github.io/css/highlight/sunburst.css">
+  <link rel="stylesheet" href="http://mislusnys.github.io/css/highlight/monokai.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
   
@@ -71,7 +71,7 @@
       <a href="https://www.linkedin.com/in/mislusnys"><i class="fa fa-linkedin-square fa-3x"></i></a>
       
       
-      
+      <a href="https://twitter.com/mislusnys"><i class="fa fa-twitter-square fa-3x"></i></a>
       
       <a href="http://mislusnys.github.io/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
       </li>
@@ -95,7 +95,7 @@
     </span>
     
 
-<h2 id="intro">Intro</h2>
+<h2 id="intro:3a3e9037ddd6e7a6645f41b17becbe3a">Intro</h2>
 
 <p><em>OWASP Mutillidae II</em> is a free, open source, deliberately vulnerable web-application providing a target for web-security enthusiast. It features many vulnerabilities and challenges.
 Contains at least one vulnerability for each of the <em>OWASP Top Ten</em>.</p>
@@ -117,11 +117,11 @@ Contains at least one vulnerability for each of the <em>OWASP Top Ten</em>.</p>
 <li><em>A10 Unvalidated Redirects and Forwards</em></li>
 </ul>
 
-<h2 id="a-name-a1-a-a1-injection"><a name="a1"></a> A1 Injection</h2>
+<h2 id="a-name-a1-a-a1-injection:3a3e9037ddd6e7a6645f41b17becbe3a"><a name="a1"></a> A1 Injection</h2>
 
 <p>Injection flaws, such as SQL, OS, and LDAP injection occur when untrusted data is sent to an interpreter as part of a command or query. The attacker’s hostile data can trick the interpreter into executing unintended commands or accessing data without proper authorization.</p>
 
-<h3 id="sql-injections">SQL Injections</h3>
+<h3 id="sql-injections:3a3e9037ddd6e7a6645f41b17becbe3a">SQL Injections</h3>
 
 <p>The first SQL injection is in the login page. If we input single quote as password and try to login, the app conveniently shows us the SQL query (in the error message):</p>
 
@@ -189,9 +189,9 @@ Table: accounts
 +-----+----------+---------------+----------+--------------+-----------+-----------------------------------------+
 </code></pre>
 
-<h3 id="other-injections">Other Injections</h3>
+<h3 id="other-injections:3a3e9037ddd6e7a6645f41b17becbe3a">Other Injections</h3>
 
-<h4 id="html-javascript-injection">HTML/Javascript Injection</h4>
+<h4 id="html-javascript-injection:3a3e9037ddd6e7a6645f41b17becbe3a">HTML/Javascript Injection</h4>
 
 <p>These injections occur when user input ends up in a generated web page and is treated as code rather than text.
 In the <code>browser-info.php</code> page we can see information about our browser, such as User-Agent, Referrer, cookie information, etc.
@@ -205,7 +205,7 @@ If we modify User-Agent string (via browser add-ons or burp) to be:</p>
 
 <p>It is actually displayed two times, because it is included in two different places within the page.</p>
 
-<h4 id="command-injection">Command Injection</h4>
+<h4 id="command-injection:3a3e9037ddd6e7a6645f41b17becbe3a">Command Injection</h4>
 
 <p><img src="/images/2015/02/03/dns.png" alt="DNS" /></p>
 
@@ -221,7 +221,7 @@ Adding <code>&amp; dir</code> will result in:</p>
 #### XML Injection
 -->
 
-<h2 id="a-name-a2-a-a2-broken-authentication-and-session-management"><a name="a2"></a> A2 Broken Authentication and Session Management</h2>
+<h2 id="a-name-a2-a-a2-broken-authentication-and-session-management:3a3e9037ddd6e7a6645f41b17becbe3a"><a name="a2"></a> A2 Broken Authentication and Session Management</h2>
 
 <p>Application functions related to authentication and session management are often not implemented correctly, allowing attackers to compromise passwords, keys, or session tokens, or to exploit other implementation flaws to assume other users’ identities.</p>
 
@@ -245,7 +245,7 @@ can do it by hand. We are looking for values that <em>XOR</em> with <em>0x9a</em
 
 <p><img src="/images/2015/02/03/root.png" alt="root" /></p>
 
-<h2 id="a-name-a3-a-a3-cross-site-scripting-xss"><a name="a3"></a> A3 Cross-Site Scripting (XSS)</h2>
+<h2 id="a-name-a3-a-a3-cross-site-scripting-xss:3a3e9037ddd6e7a6645f41b17becbe3a"><a name="a3"></a> A3 Cross-Site Scripting (XSS)</h2>
 
 <p>XSS flaws occur whenever an application takes untrusted data and sends it to a web browser without proper validation or escaping. XSS allows attackers to execute scripts in the victim’s browser which can hijack user sessions, deface web sites, or redirect the user to malicious sites.</p>
 
@@ -257,7 +257,7 @@ can do it by hand. We are looking for values that <em>XOR</em> with <em>0x9a</em
 
 <p><img src="/images/2015/02/03/xss.png" alt="xss" /></p>
 
-<h2 id="a-name-a4-a-a4-insecure-direct-object-references"><a name="a4"></a> A4 Insecure Direct Object References</h2>
+<h2 id="a-name-a4-a-a4-insecure-direct-object-references:3a3e9037ddd6e7a6645f41b17becbe3a"><a name="a4"></a> A4 Insecure Direct Object References</h2>
 
 <p>A direct object reference occurs when a developer exposes a reference to an internal implementation object, such as a file, directory, or database key. Without an access control check or other protection, attackers can manipulate these references to access unauthorized data.</p>
 
@@ -295,7 +295,7 @@ web server files. We can view the source code of the current page:</p>
 }// end try
 </code></pre>
 
-<h2 id="a-name-a5-a-a5-security-misconfiguration"><a name="a5"></a> A5 Security Misconfiguration</h2>
+<h2 id="a-name-a5-a-a5-security-misconfiguration:3a3e9037ddd6e7a6645f41b17becbe3a"><a name="a5"></a> A5 Security Misconfiguration</h2>
 
 <p>Good security requires having a secure configuration defined and deployed for the application, frameworks, application server, web server, database server, and platform. Secure settings should be defined, implemented, and maintained, as defaults are often insecure. Additionally, software should be kept up to date.</p>
 
@@ -322,7 +322,7 @@ can execute code on the server via file upload:</p>
 .. 02/05/2015 11:05 AM 132 shell.php 1 File(s) 132 bytes 2 Dir(s) 12,596,895,744 bytes free dir
 </code></pre>
 
-<h3 id="to-be-continued">To be continued&hellip;</h3>
+<h3 id="to-be-continued:3a3e9037ddd6e7a6645f41b17becbe3a">To be continued&hellip;</h3>
 
 <!--
 

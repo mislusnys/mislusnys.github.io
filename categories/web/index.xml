@@ -20,7 +20,7 @@
 &lt;p&gt;This post is continuation from &lt;a href=&#34;http://mislusnys.github.io/blog/2015/02/03/owasp-top-10-in-mutillidae-part1&#34;&gt;previous post&lt;/a&gt;. We explore less common, however, still potentially very dangerous &lt;em&gt;OWASP Top 10&lt;/em&gt; threats.
 Here we go through 6th to 10th places in the list.&lt;/p&gt;
 
-&lt;h2 id=&#34;a6-sensitive-data-exposure&#34;&gt;A6 Sensitive Data Exposure&lt;/h2&gt;
+&lt;h2 id=&#34;a6-sensitive-data-exposure:dae1cab322183177c511022ba8a7d0b0&#34;&gt;A6 Sensitive Data Exposure&lt;/h2&gt;
 
 &lt;p&gt;Many web applications do not properly protect sensitive data, such as credit cards, tax IDs, and authentication credentials. Attackers may steal or modify such weakly protected data to conduct credit card fraud, identity theft, or other crimes. Sensitive data deserves extra protection such as encryption at rest or in transit, as well as special precautions when exchanged with the browser.&lt;/p&gt;
 
@@ -36,7 +36,7 @@ rather than HTML comments, but we all know those
 security instructors are just making all this up. --&amp;gt;			&amp;lt;!-- End Content --&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;a7-missing-function-level-access-control&#34;&gt;A7 Missing Function Level Access Control&lt;/h2&gt;
+&lt;h2 id=&#34;a7-missing-function-level-access-control:dae1cab322183177c511022ba8a7d0b0&#34;&gt;A7 Missing Function Level Access Control&lt;/h2&gt;
 
 &lt;p&gt;Most web applications verify function level access rights before making that functionality visible in the UI. However, applications need to perform the same access control checks on the server when each function is accessed. If requests are not verified, attackers will be able to forge requests in order to access functionality without proper authorization.&lt;/p&gt;
 
@@ -59,7 +59,7 @@ contains information about few legitimate accounts).&lt;/p&gt;
 &lt;p&gt;Another &amp;ldquo;security by obscurity&amp;rdquo; example is &amp;ldquo;secret&amp;rdquo; administrative or configuration pages. Using Burp-Intruder in sniper mode or dirbuster we could find secret pages. Sometimes they are very obvious such as
 &lt;em&gt;secret.php, admin.php, administrator.php&lt;/em&gt;. In our case &lt;em&gt;phpmyadmin.php&lt;/em&gt; page is accessible to anyone, even anonymous user.&lt;/p&gt;
 
-&lt;h2 id=&#34;a8-cross-site-request-forgery-csrf&#34;&gt;A8 Cross-Site Request Forgery (CSRF)&lt;/h2&gt;
+&lt;h2 id=&#34;a8-cross-site-request-forgery-csrf:dae1cab322183177c511022ba8a7d0b0&#34;&gt;A8 Cross-Site Request Forgery (CSRF)&lt;/h2&gt;
 
 &lt;p&gt;A CSRF attack forces a logged-on victim&amp;rsquo;s browser to send a forged HTTP request, including the victim&amp;rsquo;s session cookie and any other automatically included authentication information, to a vulnerable web application. This allows the attacker to force the victim&amp;rsquo;s browser to generate requests the vulnerable application thinks are legitimate requests from the victim.&lt;/p&gt;
 
@@ -84,7 +84,7 @@ contains information about few legitimate accounts).&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/2015/02/06/blog.png&#34; alt=&#34;blog&#34; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;a9-using-components-with-known-vulnerabilities&#34;&gt;A9 Using Components with Known Vulnerabilities&lt;/h2&gt;
+&lt;h2 id=&#34;a9-using-components-with-known-vulnerabilities:dae1cab322183177c511022ba8a7d0b0&#34;&gt;A9 Using Components with Known Vulnerabilities&lt;/h2&gt;
 
 &lt;p&gt;Components, such as libraries, frameworks, and other software modules, almost always run with full privileges. If a vulnerable component is exploited, such an attack can facilitate serious data loss or server takeover. Applications using components with known vulnerabilities may undermine application defenses and enable a range of possible attacks and impacts.&lt;/p&gt;
 
@@ -94,7 +94,7 @@ contains information about few legitimate accounts).&lt;/p&gt;
 
 &lt;p&gt;However, in this case the server components have no known vulnerabilities (at the time of writing).&lt;/p&gt;
 
-&lt;h2 id=&#34;a10-unvalidated-redirects-and-forwards&#34;&gt;A10 Unvalidated Redirects and Forwards&lt;/h2&gt;
+&lt;h2 id=&#34;a10-unvalidated-redirects-and-forwards:dae1cab322183177c511022ba8a7d0b0&#34;&gt;A10 Unvalidated Redirects and Forwards&lt;/h2&gt;
 
 &lt;p&gt;Web applications frequently redirect and forward users to other pages and websites, and use untrusted data to determine the destination pages. Without proper validation, attackers can redirect victims to phishing or malware sites, or use forwards to access unauthorized pages.&lt;/p&gt;
 
@@ -104,7 +104,7 @@ contains information about few legitimate accounts).&lt;/p&gt;
 
 &lt;p&gt;Here, the &lt;code&gt;forwardurl&lt;/code&gt; specifies the redirection url and the attacker can point to a malicious page. Unvalidated redirects can increase the success rate in phishing attacks, because the first part of the link looks &amp;ldquo;legit&amp;rdquo;.&lt;/p&gt;
 
-&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+&lt;h2 id=&#34;summary:dae1cab322183177c511022ba8a7d0b0&#34;&gt;Summary&lt;/h2&gt;
 
 &lt;p&gt;&lt;em&gt;OWASP Top 10&lt;/em&gt; describes most common web vulnerabilities found in the real world. &lt;em&gt;Mutillidae II&lt;/em&gt; is deliberately vulnerable web application and contains at least one vulnerability from each OWASP category. It provides good
 insight into majority of web related exploitation methods.&lt;/p&gt;
@@ -119,7 +119,7 @@ insight into majority of web related exploitation methods.&lt;/p&gt;
       <guid>http://mislusnys.github.io/blog/2015/02/03/owasp-top-10-in-mutillidae-part1/</guid>
       <description>
 
-&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;
+&lt;h2 id=&#34;intro:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;Intro&lt;/h2&gt;
 
 &lt;p&gt;&lt;em&gt;OWASP Mutillidae II&lt;/em&gt; is a free, open source, deliberately vulnerable web-application providing a target for web-security enthusiast. It features many vulnerabilities and challenges.
 Contains at least one vulnerability for each of the &lt;em&gt;OWASP Top Ten&lt;/em&gt;.&lt;/p&gt;
@@ -141,11 +141,11 @@ Contains at least one vulnerability for each of the &lt;em&gt;OWASP Top Ten&lt;/
 &lt;li&gt;&lt;em&gt;A10 Unvalidated Redirects and Forwards&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;a-name-a1-a-a1-injection&#34;&gt;&lt;a name=&#34;a1&#34;&gt;&lt;/a&gt; A1 Injection&lt;/h2&gt;
+&lt;h2 id=&#34;a-name-a1-a-a1-injection:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;&lt;a name=&#34;a1&#34;&gt;&lt;/a&gt; A1 Injection&lt;/h2&gt;
 
 &lt;p&gt;Injection flaws, such as SQL, OS, and LDAP injection occur when untrusted data is sent to an interpreter as part of a command or query. The attacker’s hostile data can trick the interpreter into executing unintended commands or accessing data without proper authorization.&lt;/p&gt;
 
-&lt;h3 id=&#34;sql-injections&#34;&gt;SQL Injections&lt;/h3&gt;
+&lt;h3 id=&#34;sql-injections:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;SQL Injections&lt;/h3&gt;
 
 &lt;p&gt;The first SQL injection is in the login page. If we input single quote as password and try to login, the app conveniently shows us the SQL query (in the error message):&lt;/p&gt;
 
@@ -213,9 +213,9 @@ Table: accounts
 +-----+----------+---------------+----------+--------------+-----------+-----------------------------------------+
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;other-injections&#34;&gt;Other Injections&lt;/h3&gt;
+&lt;h3 id=&#34;other-injections:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;Other Injections&lt;/h3&gt;
 
-&lt;h4 id=&#34;html-javascript-injection&#34;&gt;HTML/Javascript Injection&lt;/h4&gt;
+&lt;h4 id=&#34;html-javascript-injection:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;HTML/Javascript Injection&lt;/h4&gt;
 
 &lt;p&gt;These injections occur when user input ends up in a generated web page and is treated as code rather than text.
 In the &lt;code&gt;browser-info.php&lt;/code&gt; page we can see information about our browser, such as User-Agent, Referrer, cookie information, etc.
@@ -229,7 +229,7 @@ If we modify User-Agent string (via browser add-ons or burp) to be:&lt;/p&gt;
 
 &lt;p&gt;It is actually displayed two times, because it is included in two different places within the page.&lt;/p&gt;
 
-&lt;h4 id=&#34;command-injection&#34;&gt;Command Injection&lt;/h4&gt;
+&lt;h4 id=&#34;command-injection:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;Command Injection&lt;/h4&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/2015/02/03/dns.png&#34; alt=&#34;DNS&#34; /&gt;&lt;/p&gt;
 
@@ -245,7 +245,7 @@ Adding &lt;code&gt;&amp;amp; dir&lt;/code&gt; will result in:&lt;/p&gt;
 #### XML Injection
 --&gt;
 
-&lt;h2 id=&#34;a-name-a2-a-a2-broken-authentication-and-session-management&#34;&gt;&lt;a name=&#34;a2&#34;&gt;&lt;/a&gt; A2 Broken Authentication and Session Management&lt;/h2&gt;
+&lt;h2 id=&#34;a-name-a2-a-a2-broken-authentication-and-session-management:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;&lt;a name=&#34;a2&#34;&gt;&lt;/a&gt; A2 Broken Authentication and Session Management&lt;/h2&gt;
 
 &lt;p&gt;Application functions related to authentication and session management are often not implemented correctly, allowing attackers to compromise passwords, keys, or session tokens, or to exploit other implementation flaws to assume other users’ identities.&lt;/p&gt;
 
@@ -269,7 +269,7 @@ can do it by hand. We are looking for values that &lt;em&gt;XOR&lt;/em&gt; with 
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/2015/02/03/root.png&#34; alt=&#34;root&#34; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;a-name-a3-a-a3-cross-site-scripting-xss&#34;&gt;&lt;a name=&#34;a3&#34;&gt;&lt;/a&gt; A3 Cross-Site Scripting (XSS)&lt;/h2&gt;
+&lt;h2 id=&#34;a-name-a3-a-a3-cross-site-scripting-xss:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;&lt;a name=&#34;a3&#34;&gt;&lt;/a&gt; A3 Cross-Site Scripting (XSS)&lt;/h2&gt;
 
 &lt;p&gt;XSS flaws occur whenever an application takes untrusted data and sends it to a web browser without proper validation or escaping. XSS allows attackers to execute scripts in the victim’s browser which can hijack user sessions, deface web sites, or redirect the user to malicious sites.&lt;/p&gt;
 
@@ -281,7 +281,7 @@ can do it by hand. We are looking for values that &lt;em&gt;XOR&lt;/em&gt; with 
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/2015/02/03/xss.png&#34; alt=&#34;xss&#34; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;a-name-a4-a-a4-insecure-direct-object-references&#34;&gt;&lt;a name=&#34;a4&#34;&gt;&lt;/a&gt; A4 Insecure Direct Object References&lt;/h2&gt;
+&lt;h2 id=&#34;a-name-a4-a-a4-insecure-direct-object-references:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;&lt;a name=&#34;a4&#34;&gt;&lt;/a&gt; A4 Insecure Direct Object References&lt;/h2&gt;
 
 &lt;p&gt;A direct object reference occurs when a developer exposes a reference to an internal implementation object, such as a file, directory, or database key. Without an access control check or other protection, attackers can manipulate these references to access unauthorized data.&lt;/p&gt;
 
@@ -319,7 +319,7 @@ web server files. We can view the source code of the current page:&lt;/p&gt;
 }// end try
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;a-name-a5-a-a5-security-misconfiguration&#34;&gt;&lt;a name=&#34;a5&#34;&gt;&lt;/a&gt; A5 Security Misconfiguration&lt;/h2&gt;
+&lt;h2 id=&#34;a-name-a5-a-a5-security-misconfiguration:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;&lt;a name=&#34;a5&#34;&gt;&lt;/a&gt; A5 Security Misconfiguration&lt;/h2&gt;
 
 &lt;p&gt;Good security requires having a secure configuration defined and deployed for the application, frameworks, application server, web server, database server, and platform. Secure settings should be defined, implemented, and maintained, as defaults are often insecure. Additionally, software should be kept up to date.&lt;/p&gt;
 
@@ -346,7 +346,7 @@ can execute code on the server via file upload:&lt;/p&gt;
 .. 02/05/2015 11:05 AM 132 shell.php 1 File(s) 132 bytes 2 Dir(s) 12,596,895,744 bytes free dir
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;to-be-continued&#34;&gt;To be continued&amp;hellip;&lt;/h3&gt;
+&lt;h3 id=&#34;to-be-continued:3a3e9037ddd6e7a6645f41b17becbe3a&#34;&gt;To be continued&amp;hellip;&lt;/h3&gt;
 
 &lt;!--
 
@@ -381,7 +381,7 @@ Web applications frequently redirect and forward users to other pages and websit
       <guid>http://mislusnys.github.io/blog/2015/02/02/exploring-damn-vulnerable-web-application/</guid>
       <description>
 
-&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;
+&lt;h2 id=&#34;intro:a278ed06f786dfe478032a0f72deba1a&#34;&gt;Intro&lt;/h2&gt;
 
 &lt;p&gt;Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.&lt;/p&gt;
 
@@ -389,7 +389,7 @@ Web applications frequently redirect and forward users to other pages and websit
 We will use the version that is bundled in the &lt;a href=&#34;http://sourceforge.net/projects/metasploitable/files/Metasploitable2/&#34;&gt;Metasploitable 2&lt;/a&gt; VM.
 We will use the lowest security setting (&lt;em&gt;PHPIDS:disabled&lt;/em&gt; and &lt;em&gt;Security Level:low&lt;/em&gt;).&lt;/p&gt;
 
-&lt;h2 id=&#34;1-brute-force&#34;&gt;1. Brute Force&lt;/h2&gt;
+&lt;h2 id=&#34;1-brute-force:a278ed06f786dfe478032a0f72deba1a&#34;&gt;1. Brute Force&lt;/h2&gt;
 
 &lt;p&gt;Our first task is to brute force HTTP based login form:&lt;/p&gt;
 
@@ -418,7 +418,7 @@ Hydra (http://www.thc.org/thc-hydra) finished at 2015-02-02 09:13:57
 
 &lt;p&gt;We found valid login credentials: &lt;code&gt;admin:password&lt;/code&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;2-command-execution&#34;&gt;2. Command Execution&lt;/h2&gt;
+&lt;h2 id=&#34;2-command-execution:a278ed06f786dfe478032a0f72deba1a&#34;&gt;2. Command Execution&lt;/h2&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/ce.png&#34; alt=&#34;Command Execution&#34; /&gt;&lt;/p&gt;
 
@@ -447,7 +447,7 @@ drwxr-xr-x  2 www-data www-data 4096 May 20  2012 help
 drwxr-xr-x  2 www-data www-data 4096 May 20  2012 source
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;3-cross-site-request-forgery&#34;&gt;3. Cross Site Request Forgery&lt;/h2&gt;
+&lt;h2 id=&#34;3-cross-site-request-forgery:a278ed06f786dfe478032a0f72deba1a&#34;&gt;3. Cross Site Request Forgery&lt;/h2&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/csrf.png&#34; alt=&#34;CSRF&#34; /&gt;&lt;/p&gt;
 
@@ -458,7 +458,7 @@ In our case the password change operation results in the following request:&lt;/
 
 &lt;p&gt;If we can trick an authenticated user to make this request, we can change this user&amp;rsquo;s password. Usually this is done by tricking the user into visiting a page controlled by the attacker with malicious request embedded inside &lt;code&gt;img&lt;/code&gt;, &lt;code&gt;iframe&lt;/code&gt; tags or inside malicious javascript code.&lt;/p&gt;
 
-&lt;h2 id=&#34;4-file-inclusion&#34;&gt;4. File Inclusion&lt;/h2&gt;
+&lt;h2 id=&#34;4-file-inclusion:a278ed06f786dfe478032a0f72deba1a&#34;&gt;4. File Inclusion&lt;/h2&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/fi.png&#34; alt=&#34;File Inclusion&#34; /&gt;&lt;/p&gt;
 
@@ -505,7 +505,7 @@ statd:x:114:65534::/var/lib/nfs:/bin/false
 snmp:x:115:65534::/var/lib/snmp:/bin/false 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;5-1-sql-injection&#34;&gt;5.1 SQL Injection&lt;/h2&gt;
+&lt;h2 id=&#34;5-1-sql-injection:a278ed06f786dfe478032a0f72deba1a&#34;&gt;5.1 SQL Injection&lt;/h2&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/sqli.png&#34; alt=&#34;SQLI&#34; /&gt;&lt;/p&gt;
 
@@ -613,7 +613,7 @@ Surname: 5f4dcc3b5aa765d61d8327deb882cf99
 
 &lt;p&gt;Looks like the passwords are MD5 hashed. However, they are easily found to be &lt;code&gt;test&lt;/code&gt;, &lt;code&gt;abc123&lt;/code&gt;, &lt;code&gt;charley&lt;/code&gt;, &lt;code&gt;letmein&lt;/code&gt; and &lt;code&gt;password&lt;/code&gt; respectively.&lt;/p&gt;
 
-&lt;h2 id=&#34;5-2-sql-injection-blind&#34;&gt;5.2 SQL Injection(Blind)&lt;/h2&gt;
+&lt;h2 id=&#34;5-2-sql-injection-blind:a278ed06f786dfe478032a0f72deba1a&#34;&gt;5.2 SQL Injection(Blind)&lt;/h2&gt;
 
 &lt;p&gt;The blind SQL injection case uses the same vulnerable SQL query. The only difference is that the errors (from MySQL) are not shown to the user.
 We can use &lt;code&gt;sqlmap&lt;/code&gt; to automate SQL injection exploitation (especially in blind injection cases where injection uses MANY boolean or time based queries)&lt;/p&gt;
@@ -634,7 +634,7 @@ Table: users
 +---------+---------+-------------------------------------------------------+----------------------------------+-----------+------------+
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;6-file-upload&#34;&gt;6. File Upload&lt;/h2&gt;
+&lt;h2 id=&#34;6-file-upload:a278ed06f786dfe478032a0f72deba1a&#34;&gt;6. File Upload&lt;/h2&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/up.png&#34; alt=&#34;File Upload&#34; /&gt;&lt;/p&gt;
 
@@ -656,7 +656,7 @@ if(isset($_REQUEST[&#39;cmd&#39;])){
 
 &lt;p&gt;&lt;code&gt;http://192.168.52.129/dvwa/hackable/uploads/shell.php?cmd=ls -al&lt;/code&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;7-1-reflected-xss&#34;&gt;7.1 Reflected XSS&lt;/h2&gt;
+&lt;h2 id=&#34;7-1-reflected-xss:a278ed06f786dfe478032a0f72deba1a&#34;&gt;7.1 Reflected XSS&lt;/h2&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/xss.png&#34; alt=&#34;XSS&#34; /&gt;&lt;/p&gt;
 
@@ -666,7 +666,7 @@ if(isset($_REQUEST[&#39;cmd&#39;])){
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/cookie.png&#34; alt=&#34;Cookie&#34; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;7-2-stored-xss&#34;&gt;7.2 Stored XSS&lt;/h2&gt;
+&lt;h2 id=&#34;7-2-stored-xss:a278ed06f786dfe478032a0f72deba1a&#34;&gt;7.2 Stored XSS&lt;/h2&gt;
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/xss2.png&#34; alt=&#34;XSS&#34; /&gt;&lt;/p&gt;
 
@@ -674,7 +674,7 @@ if(isset($_REQUEST[&#39;cmd&#39;])){
 
 &lt;p&gt;&lt;img src=&#34;http://mislusnys.github.io/images/stored.png&#34; alt=&#34;Stored XSS&#34; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+&lt;h2 id=&#34;summary:a278ed06f786dfe478032a0f72deba1a&#34;&gt;Summary&lt;/h2&gt;
 
 &lt;p&gt;DVWA includes most common web server vulnerabilities and provides easy access to the vulnerable pieces of code. It is a great package for a beginner level pentest demo.&lt;/p&gt;
 </description>
