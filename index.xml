@@ -967,8 +967,6 @@ Inside the trace we get the decoding of our flag char by char:&lt;/p&gt;
 &lt;h4 id=&#34;exploit-development-and-reverse-engineering:74f7fb04a75e766307d398251c369a21&#34;&gt;Exploit Development and Reverse Engineering&lt;/h4&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://ilspy.net/&#34;&gt;ILSpy&lt;/a&gt; - .NET decompiler&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.jetbrains.com/decompiler/&#34;&gt;dotPeek&lt;/a&gt; - .NET decompiler&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.ntcore.com/exsuite.php&#34;&gt;CFF Explorer&lt;/a&gt; - PE tools&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.rohitab.com/apimonitor&#34;&gt;API Monitor&lt;/a&gt; - Win API monitor&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://mh-nexus.de/en/downloads.php?product=HxD&#34;&gt;HxD&lt;/a&gt; - Windows Hex Editor&lt;/li&gt;
@@ -2066,7 +2064,7 @@ uid=1001(user) gid=1001(user) euid=0(root) groups=0(root),1001(user)
 &lt;p&gt;All source code files and snippets found on this blog, unless otherwise
 explicitly noted, are licensed under the terms below.&lt;/p&gt;
 
-&lt;p&gt;Copyright &amp;copy; 2015 - Mindaugas Slusnys&lt;/p&gt;
+&lt;p&gt;Copyright &amp;copy; 2016 - Mindaugas Slusnys&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;Licensed under the Apache License, Version 2.0 (the &amp;quot;License&amp;quot;);
 you may not use this file except in compliance with the License.
