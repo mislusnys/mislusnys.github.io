@@ -1,104 +1,113 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
-<head>
-  <link href="http://gmpg.org/xfn/11" rel="profile">
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<html lang="en-us">
 
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+	<head>
+		<title> php &middot; InfoSec Blog </title>
 
-  <title>Php &middot; Mindaugas Slusnys</title>
-
-  
-  <link rel="stylesheet" href="http://mislusnys.github.io/css/poole.css">
-  <link rel="stylesheet" href="http://mislusnys.github.io/css/hyde.css">
-  <link rel="stylesheet" href="http://mislusnys.github.io/css/poole-overrides.css">
-  <link rel="stylesheet" href="http://mislusnys.github.io/css/hyde-overrides.css">
-  <link rel="stylesheet" href="http://mislusnys.github.io/css/hyde-x.css">
-  <link rel="stylesheet" href="http://mislusnys.github.io/css/highlight/monokai.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-  
-
-  
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://mislusnys.github.io/touch-icon-144-precomposed.png">
-  <link href="http://mislusnys.github.io/favicon.png" rel="icon">
-
-  
-  
-  
-  <link href="http://mislusnys.github.io/categories/php/index.xml" rel="alternate" type="application/rss+xml" title="Infosec Blog &middot; Mindaugas Slusnys" />
-
-  <meta name="description" content="Infosec Blog">
-  <meta name="keywords" content="owasp,ctf,reverse engineering,exploit,python">
-  
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-82196864-1', 'auto');
-    ga('send', 'pageview');
-  </script>
-  
-</head>
-<body>
-<div class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      
-      <h1>Mindaugas Slusnys</h1>
-      
-    </div>
-
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-item"><a href="http://mislusnys.github.io/">Blog</a></li>
-      
-      <li class="sidebar-nav-item"><a href="http://mislusnys.github.io/post/">Posts</a></li>
-      
-      <li class="sidebar-nav-item"><a href="http://mislusnys.github.io/about/">About Me</a></li>
-      
-      <li class="sidebar-nav-item"><a href="http://mislusnys.github.io/resources/">Resources</a></li>
-      
-    </ul>
-
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-item">
-      <a href="https://github.com/mislusnys"><i class="fa fa-github-square fa-3x"></i></a>
-      
-      
-      <a href="https://www.linkedin.com/in/mislusnys"><i class="fa fa-linkedin-square fa-3x"></i></a>
-      
-      
-      <a href="https://twitter.com/mislusnys"><i class="fa fa-twitter-square fa-3x"></i></a>
-      
-      <a href="http://mislusnys.github.io/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
-      </li>
-    </ul>
-
-    
-
-    <p>Copyright &copy; 2016 <a href="http://mislusnys.github.io/license/">License</a><br/>
-       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
-  </div>
-</div>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.55.1" />
 
 
-<div class="content container">
-  <ul class="posts">
-  
-    <li><a href="http://mislusnys.github.io/blog/2015/02/02/exploring-damn-vulnerable-web-application/">Exploring Damn Vulnerable Web Application</a>
-    
-    &middot;
-    <a class="label" href="http://mislusnys.github.io/categories/owasp">owasp</a><a class="label" href="http://mislusnys.github.io/categories/web">web</a><a class="label" href="http://mislusnys.github.io/categories/php">php</a>
-    </span>
-    &middot; <time>Feb 2, 2015</time></li>
-  
-  </ul>
-</div>
-<script src="http://mislusnys.github.io/js/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-</body>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="http://mislusnys.github.io/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+	</head>
+
+	<body>
+		<header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=http://mislusnys.github.io/>ms@blog ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<a href="http://mislusnys.github.io/">/home/ms</a>
+				</li>
+				
+				
+				<li class="dropdown">
+                    
+            		<a href="/post">~/posts</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+		<div class="container wrapper">
+			<div class="row">
+				<div class="col-xs-12 text-center">
+					<h1 id=>php</h1>
+				</div>
+			</div>
+			<ul id="post-list">
+                	
+				<li>
+					<div class="post-list-item">
+						<div class="post-header">
+							<h4 class="post-link"><a href="http://mislusnys.github.io/post/2015-02-02-damn-vulnerable-web-application/">Exploring Damn Vulnerable Web Application</a></h4>
+							<h4 class="post-date">Feb 2, 2015</h4>
+						</div>
+						<div class="post-summary"><p><p>Damn Vulnerable Web App (DVWA) is a PHP/MySQL web application that is damn vulnerable. Its main goals are to be an aid for security professionals to test their skills and tools in a legal environment, help web developers better understand the processes of securing web applications and aid teachers/students to teach/learn web application security in a class room environment.</p></p></div>
+						<div class="post-list-footer text-center">
+							<a href="http://mislusnys.github.io/post/2015-02-02-damn-vulnerable-web-application/">Read More</a>
+						</div>
+					</div>
+				</li>
+			
+			</ul>
+            
+
+
+
+			<div class="push"></div>
+		</div>
+		<footer class="footer text-center">
+<p>Copyright &copy; 2019  -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+	</body>
 </html>
-
