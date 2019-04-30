@@ -37,13 +37,13 @@
   </url>
   
   <url>
-    <loc>http://mislusnys.github.io/categories/ctf/</loc>
+    <loc>http://mislusnys.github.io/tags/ctf/</loc>
     <lastmod>2016-11-06T18:56:21+01:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://mislusnys.github.io/tags/ctf/</loc>
+    <loc>http://mislusnys.github.io/categories/ctf/</loc>
     <lastmod>2016-11-06T18:56:21+01:00</lastmod>
     <priority>0</priority>
   </url>
@@ -55,13 +55,13 @@
   </url>
   
   <url>
-    <loc>http://mislusnys.github.io/categories/reversing/</loc>
+    <loc>http://mislusnys.github.io/tags/reversing/</loc>
     <lastmod>2016-11-06T18:56:21+01:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://mislusnys.github.io/tags/reversing/</loc>
+    <loc>http://mislusnys.github.io/categories/reversing/</loc>
     <lastmod>2016-11-06T18:56:21+01:00</lastmod>
     <priority>0</priority>
   </url>
@@ -83,13 +83,13 @@
   </url>
   
   <url>
-    <loc>http://mislusnys.github.io/categories/linux/</loc>
+    <loc>http://mislusnys.github.io/tags/linux/</loc>
     <lastmod>2016-06-26T03:10:18-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://mislusnys.github.io/tags/linux/</loc>
+    <loc>http://mislusnys.github.io/categories/linux/</loc>
     <lastmod>2016-06-26T03:10:18-04:00</lastmod>
     <priority>0</priority>
   </url>
@@ -116,25 +116,25 @@
   </url>
   
   <url>
-    <loc>http://mislusnys.github.io/categories/owasp/</loc>
-    <lastmod>2015-02-06T04:29:36+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>http://mislusnys.github.io/tags/owasp/</loc>
     <lastmod>2015-02-06T04:29:36+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://mislusnys.github.io/categories/web/</loc>
+    <loc>http://mislusnys.github.io/categories/owasp/</loc>
     <lastmod>2015-02-06T04:29:36+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>http://mislusnys.github.io/tags/web/</loc>
+    <lastmod>2015-02-06T04:29:36+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://mislusnys.github.io/categories/web/</loc>
     <lastmod>2015-02-06T04:29:36+00:00</lastmod>
     <priority>0</priority>
   </url>
