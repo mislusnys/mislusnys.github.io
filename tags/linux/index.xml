@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>linux on InfoSec Blog</title>
+    <link>http://mislusnys.github.io/tags/linux/</link>
+    <description>Recent content in linux on InfoSec Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 26 Jun 2016 03:10:18 -0400</lastBuildDate>
+    
+	<atom:link href="http://mislusnys.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Protostar Format String (Levels 0-4)</title>
+      <link>http://mislusnys.github.io/post/2016-06-26-protostar-format-string-levels/</link>
+      <pubDate>Sun, 26 Jun 2016 03:10:18 -0400</pubDate>
+      
+      <guid>http://mislusnys.github.io/post/2016-06-26-protostar-format-string-levels/</guid>
+      <description>&lt;p&gt;Protostar is a Linux VM with a series of exploitation exercises. It has five sections: stack overflows, format strings, heap overflows,
+network code and 3 final levels with combinations of all the above.&lt;/p&gt;
+
+&lt;p&gt;This post contains solutions for the five format string levels.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Protostar Exploit Exercises - Stack Levels</title>
+      <link>http://mislusnys.github.io/post/2016-05-20-protostar-exploit-exercises/</link>
+      <pubDate>Sun, 19 Jun 2016 13:37:33 -0400</pubDate>
+      
+      <guid>http://mislusnys.github.io/post/2016-05-20-protostar-exploit-exercises/</guid>
+      <description>&lt;p&gt;The Protostar VM is the next progression step after Nebula (Exploit Exercises).&lt;/p&gt;
+
+&lt;p&gt;Protostar introduces the following in a friendly way:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Network programming&lt;/li&gt;
+&lt;li&gt;Byte order&lt;/li&gt;
+&lt;li&gt;Handling sockets&lt;/li&gt;
+&lt;li&gt;Stack overflows&lt;/li&gt;
+&lt;li&gt;Format strings&lt;/li&gt;
+&lt;li&gt;Heap overflows&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The above is introduced in a simple way, starting with simple memory corruption and modification, function redirection, and finally executing custom shellcode.&lt;/p&gt;
+
+&lt;p&gt;In this post I will detail my attempt at solving the stack levels of this VM.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

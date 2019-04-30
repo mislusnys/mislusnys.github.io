@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+	<head>
+		<title> ctf &middot; InfoSec Blog </title>
+
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.55.1" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="http://mislusnys.github.io/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+	</head>
+
+	<body>
+		<header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=http://mislusnys.github.io/>ms@blog ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<a href="http://mislusnys.github.io/">/home/ms</a>
+				</li>
+				
+				
+				<li class="dropdown">
+                    
+            		<a href="/post">~/posts</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+		<div class="container wrapper">
+			<div class="row">
+				<div class="col-xs-12 text-center">
+					<h1 id=>ctf</h1>
+				</div>
+			</div>
+			<ul id="post-list">
+                	
+				<li>
+					<div class="post-list-item">
+						<div class="post-header">
+							<h4 class="post-link"><a href="http://mislusnys.github.io/post/flareon3/">Flare-On Reversing Challenges 2016</a></h4>
+							<h4 class="post-date">Nov 6, 2016</h4>
+						</div>
+						<div class="post-summary"><p><p>This autumn FireEye&rsquo;s FLARE team hosted its third annual Flare-On Challenge.
+Flare-On is purely reverse engineering based CTF targeting malware analysts and
+security professionals. This year there were ten challenges and even though
+all very different, most of them were crypto related.</p>
+
+<p>This post will present my solutions to all the challenges.</p></p></div>
+						<div class="post-list-footer text-center">
+							<a href="http://mislusnys.github.io/post/flareon3/">Read More</a>
+						</div>
+					</div>
+				</li>
+			
+				<li>
+					<div class="post-list-item">
+						<div class="post-header">
+							<h4 class="post-link"><a href="http://mislusnys.github.io/post/2016-06-26-protostar-format-string-levels/">Protostar Format String (Levels 0-4)</a></h4>
+							<h4 class="post-date">Jun 26, 2016</h4>
+						</div>
+						<div class="post-summary"><p><p>Protostar is a Linux VM with a series of exploitation exercises. It has five sections: stack overflows, format strings, heap overflows,
+network code and 3 final levels with combinations of all the above.</p>
+
+<p>This post contains solutions for the five format string levels.</p></p></div>
+						<div class="post-list-footer text-center">
+							<a href="http://mislusnys.github.io/post/2016-06-26-protostar-format-string-levels/">Read More</a>
+						</div>
+					</div>
+				</li>
+			
+				<li>
+					<div class="post-list-item">
+						<div class="post-header">
+							<h4 class="post-link"><a href="http://mislusnys.github.io/post/2016-05-20-protostar-exploit-exercises/">Protostar Exploit Exercises - Stack Levels</a></h4>
+							<h4 class="post-date">Jun 19, 2016</h4>
+						</div>
+						<div class="post-summary"><p><p>The Protostar VM is the next progression step after Nebula (Exploit Exercises).</p>
+
+<p>Protostar introduces the following in a friendly way:</p>
+
+<ul>
+<li>Network programming</li>
+<li>Byte order</li>
+<li>Handling sockets</li>
+<li>Stack overflows</li>
+<li>Format strings</li>
+<li>Heap overflows</li>
+</ul>
+
+<p>The above is introduced in a simple way, starting with simple memory corruption and modification, function redirection, and finally executing custom shellcode.</p>
+
+<p>In this post I will detail my attempt at solving the stack levels of this VM.</p></p></div>
+						<div class="post-list-footer text-center">
+							<a href="http://mislusnys.github.io/post/2016-05-20-protostar-exploit-exercises/">Read More</a>
+						</div>
+					</div>
+				</li>
+			
+				<li>
+					<div class="post-list-item">
+						<div class="post-header">
+							<h4 class="post-link"><a href="http://mislusnys.github.io/post/2016-05-01-nebula-exploit-exercises/">Nebula Exploit Exercises</a></h4>
+							<h4 class="post-date">May 2, 2016</h4>
+						</div>
+						<div class="post-summary"><p><p>Ever since I stumbled upon exploit exercises website - I wanted to try the challenges. They have three main exploitable VMs: Nebula, Protostar and Fusion.
+The order represents the suggested progression path.</p>
+
+<p>The welcome page reads:</p>
+
+<blockquote>
+<p><em>exploit-exercises.com provides a variety of virtual machines, documentation and challenges</em>
+<em>that can be used to learn about a variety of computer</em>
+<em>security issues such as privilege escalation, vulnerability analysis, exploit development,</em>
+<em>debugging, reverse engineering, and general cyber security issues.</em></p>
+</blockquote>
+
+<p>Here, I wrote down some of the findings while exploring the Nebula VM.</p></p></div>
+						<div class="post-list-footer text-center">
+							<a href="http://mislusnys.github.io/post/2016-05-01-nebula-exploit-exercises/">Read More</a>
+						</div>
+					</div>
+				</li>
+			
+			</ul>
+            
+
+
+
+			<div class="push"></div>
+		</div>
+		<footer class="footer text-center">
+<p>Copyright &copy; 2019  -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+	</body>
+</html>

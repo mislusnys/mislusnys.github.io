@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Flare-On Reversing Challenges 2016 &middot; InfoSec Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.55.1" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="http://mislusnys.github.io/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=http://mislusnys.github.io/>ms@blog ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<a href="http://mislusnys.github.io/">/home/ms</a>
+				</li>
+				
+				
+				<li class="dropdown">
+                    
+            		<a href="/post">~/posts</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="http://mislusnys.github.io/post/flareon3/">Flare-On Reversing Challenges 2016</a></h1>
+            <span class="post-date">Nov 6, 2016 </span>
+            <div class="post-content">
+                <p>This autumn FireEye&rsquo;s FLARE team hosted its third annual Flare-On Challenge.
+Flare-On is purely reverse engineering based CTF targeting malware analysts and
+security professionals. This year there were ten challenges and even though
+all very different, most of them were crypto related.</p>
+
+<p>This post will present my solutions to all the challenges.</p>
+
+<p>I don&rsquo;t go into a lot of detail in most of the solutions and mostly just present the
+general idea of the individual challenge. If you are interested in a very detailed explanations,
+you can check out the official solutions <a href="https://www.fireeye.com/blog/threat-research/2016/11/2016_flare-on_challe.html">here</a>.</p>
+
+<ul>
+<li><a href="#ch1">Challenge 1 (challenge1)</a></li>
+<li><a href="#ch2">Challenge 2 (DudeLocker)</a></li>
+<li><a href="#ch3">Challenge 3 (unknown)</a></li>
+<li><a href="#ch4">Challenge 4 (flareon2016challenge)</a></li>
+<li><a href="#ch5">Challenge 5 (smokestack)</a></li>
+<li><a href="#ch6">Challenge 6 (khaki)</a></li>
+<li><a href="#ch7">Challenge 7 (hashes)</a></li>
+<li><a href="#ch8">Challenge 8 (CHIMERA)</a></li>
+<li><a href="#ch9">Challenge 9 (GUI)</a></li>
+<li><a href="#ch10">Challenge 10 (flava)</a></li>
+</ul>
+
+<h3 id="a-name-ch1-a-challenge-1"><a name="ch1"></a>Challenge #1</h3>
+
+<p>Challenge1.exe is a standard win32 console application which asks for a password (presumably our flag)
+and prints a message:</p>
+
+<p><img src="/images/2016/11/06/ch1.png" alt="Challenge1" /></p>
+
+<p>Upon opening the binary in IDA we realize that the program logic is quite simple - the password
+is base64 encoded and compared to a hardcoded value. The only gotcha here is that the binary is
+using a custom alphabet to do the encoding.</p>
+
+<p><img src="/images/2016/11/06/ch1_ida.png" alt="Custom base64" /></p>
+
+<p>This python script translates between the two alphabets and base64 decodes our flag:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> string
+<span style="color:#f92672">import</span> base64
+
+encoded <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;x2dtJEOmyjacxDemx2eczT5cVS9fVUGvWTuZWjuexjRqy24rV29q&#39;</span>
+
+custom_b64 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ZYXABCDEFGHIJKLMNOPQRSTUVWzyxabcdefghijklmnopqrstuvw0123456789+/&#39;</span>
+std_b64 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/&#39;</span>
+
+encoded <span style="color:#f92672">=</span> encoded<span style="color:#f92672">.</span>translate(string<span style="color:#f92672">.</span>maketrans(custom_b64, std_b64))
+flag <span style="color:#f92672">=</span> base64<span style="color:#f92672">.</span>b64decode(encoded)
+
+<span style="color:#66d9ef">print</span> flag</code></pre></div>
+<p><img src="/images/2016/11/06/ch1_flag.png" alt="Flag" /></p>
+
+<p><code>sh00ting_phish_in_a_barrel@flare-on.com</code></p>
+
+<h3 id="a-name-ch2-a-challenge-2"><a name="ch2"></a>Challenge #2</h3>
+
+<p>The second challenge consists of <code>DudeLocker.exe</code> and <code>BusinessPapers.doc</code> files. The .doc file in not a valid
+MS Word document and seems to be encrypted with the provided executable.</p>
+
+<p>Stepping through the code with Immunity Debugger, we can see that it only encrypts files which are inside a <code>Briefcase</code>
+folder on the current user&rsquo;s Desktop.
+There is also a hard drive volume&rsquo;s serial number check against a hardcoded value of <code>7DAB1D35</code>.</p>
+
+<p>If these checks pass, the locker encrypts all the files inside the Briefcase folder and drops
+a <em>ve_vant_ze_money.jpg</em> ransom note:</p>
+
+<p><img src="/images/2016/11/06/ve_vant_ze_money.jpg" alt="Ransom Note" /></p>
+
+<p>The files are encrypted using standard Microsoft Crypto API. The <code>CryptDeriveKey</code> is used to set up the encryption
+key, which in this case is 256 bit AES.
+The MSDN states:</p>
+
+<blockquote>
+<p>The CryptDeriveKey function generates cryptographic session keys derived from a base data value. This function guarantees that when the same cryptographic service provider (CSP) and algorithms are used, the keys generated from the same base data are identical. The base data can be a password or any other user data.</p>
+</blockquote>
+
+<p>Next, the <code>CryptEncrypt</code> call is used to encrypt the files.</p>
+
+<p>So, given that it&rsquo;s an AES encryption and the <code>CryptDeriveKey</code> gives us the same key that was used for encryption -
+we can replace the <code>CryptEncrypt</code> call with <code>CryptDecrypt</code> and produce a new binary which
+decrypts files encrypted with DudeLocker.exe.</p>
+
+<p>So, I added the missing <code>CryptDecrypt</code> call to the binary&rsquo;s import table and
+patched the executable to decrypt the files. The decryption call takes one
+parameter less than the encryption one, so I NOP&rsquo;ed one push to the stack as well:</p>
+
+<p><img src="/images/2016/11/06/ch2_decrypt.png" alt="Decryptor" /></p>
+
+<p>Next, I modified the C: drive&rsquo;s serial
+number to match the hardcoded one using Sysinternal&rsquo;s <code>VolumeId</code>.</p>
+
+<p>Now, we can use our brand new decryption tool to decrypt the encrypted .doc file, which turns
+out to be a jpeg with our flag:</p>
+
+<p><img src="/images/2016/11/06/ch2_flag.jpg" alt="Flag" /></p>
+
+<p><code>cl0se_t3h_f1le_0n_th1s_0ne@flare-on.com</code></p>
+
+<h3 id="a-name-ch3-a-challenge-3"><a name="ch3"></a>Challenge #3</h3>
+
+<p>The third challenge is a win32 binary literally called <code>unknown</code>. Upon opening
+it in IDA we get our first clue:</p>
+
+<p><img src="/images/2016/11/06/ch3_pdb.png" alt="Extraspecial.pdb" /></p>
+
+<p>After initial analysis and some debugging, we realize that the binary does some
+calculations/hashing using the program&rsquo;s name. There&rsquo;s also a check for the
+letter <code>r</code> in the name of the program. Given all these clues, we <strong>must</strong> deduce, that the
+original binary name must have been <code>extraspecial.exe</code>.</p>
+
+<p>With that out of the way, the interesting part is shown in IDA below:</p>
+
+<p><img src="/images/2016/11/06/ch3_ida.png" alt="IDA" /></p>
+
+<p>Here, the program uses our input (which needs to be 0x1A or 26 chars long) to calculate
+checksums and compares them with the memory values which were computed using the
+binary&rsquo;s name. The cheksums are calculated in a loop and use one char of our
+input per checksum.</p>
+
+<p>I have dumped the 4 * 26 bytes of memory that is used to check our flag from the
+debugger and used that to write a python script which finds our flag one char
+at a time. A couple notes on the script: First, the hexdump is already in a convenient little endian format and
+second, the script uses numpy&rsquo;s <code>uint32</code> for the checksum as it perfectly emulates C style overflow of 32 bit
+integers (python&rsquo;s standard behaviour is to extend 32 bit values to 64 bit if they happen to overflow, which
+is NOT desireable in this case).</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> struct
+<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+<span style="color:#f92672">import</span> binascii
+
+flare <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;FLARE On!&#39;</span>
+start <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x60</span>
+
+hexdump <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;2F3E61EE45EB79DE3D2F1BAFD7BB47879CC49A73AEF5A4C9C1C53246249B02A0595016D65194B7A6BA239DE7CE92AE8A181A99859958E0FE94790C436FF3B91A8124C470CF27BD056F6EFFC47C84775AB37792DDFF3C842544A9DC5F9628E48EC761E92ADA3177A7&#39;</span>
+hexdump <span style="color:#f92672">=</span> hexdump<span style="color:#f92672">.</span>lower()
+hexlist <span style="color:#f92672">=</span> [hexdump[i<span style="color:#f92672">*</span><span style="color:#ae81ff">8</span>:(i<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">*</span><span style="color:#ae81ff">8</span>] <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> xrange(<span style="color:#ae81ff">0x1a</span>)]
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">checksum</span>(str):
+    result <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>uint32(<span style="color:#ae81ff">0</span>)
+    <span style="color:#66d9ef">for</span> char <span style="color:#f92672">in</span> str:
+        result <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>uint32(ord(char) <span style="color:#f92672">+</span> <span style="color:#ae81ff">37</span> <span style="color:#f92672">*</span> result)
+    <span style="color:#66d9ef">return</span> result
+
+flag <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> xrange(<span style="color:#ae81ff">0x1a</span>):
+    <span style="color:#66d9ef">for</span> char <span style="color:#f92672">in</span> xrange(<span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x7f</span>):
+        concat <span style="color:#f92672">=</span> chr(char) <span style="color:#f92672">+</span> chr(start) <span style="color:#f92672">+</span> flare 
+        sum <span style="color:#f92672">=</span> checksum(concat)
+        hexsum <span style="color:#f92672">=</span> binascii<span style="color:#f92672">.</span>hexlify(sum)
+        <span style="color:#66d9ef">if</span> hexsum <span style="color:#f92672">==</span> hexlist[i]:
+            flag <span style="color:#f92672">+=</span> chr(char)
+            <span style="color:#66d9ef">break</span>
+    start <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+
+<span style="color:#66d9ef">print</span> flag</code></pre></div>
+<p><code>Ohs0pec1alpwd@flare-on.com</code></p>
+
+<h3 id="a-name-ch4-a-challenge-4"><a name="ch4"></a>Challenge #4</h3>
+
+<p>Challenge #4 is a dll file called <code>flareon2016challenge.dll</code>. The dll has 51 exported functions, all of them
+exported by the ordinal #.</p>
+
+<p>Export #51 has some kind of decryption call <code>sub_10001000</code> which is dependant on calling exports 1-48 in some
+kind of order prior to calling the #51:</p>
+
+<p><img src="/images/2016/11/06/ch4_export51.png" alt="Export 51" /></p>
+
+<p>A closer inspection of exports 1-48 reveals that they all return values in the range 1-51 and all of them -
+different from each other. This suggests that the order of the calls depends on the return values of the calls
+themselves. So if the #51 was to be called the last, then the previous one would have to be the one returning 51 and
+so on. Walking backwards all the way, we find that we need to start with the #30 and just call others based on the
+return value.</p>
+
+<p>One of the easier ways to do that is from a python script:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> ctypes <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+
+mydll <span style="color:#f92672">=</span> cdll<span style="color:#f92672">.</span>LoadLibrary(<span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">flareon2016challenge.dll&#34;</span>)
+i <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>
+<span style="color:#66d9ef">while</span> True:
+    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;Calling: &#34;</span>, i
+    i <span style="color:#f92672">=</span> mydll[i]()
+    <span style="color:#66d9ef">if</span> i <span style="color:#f92672">==</span> <span style="color:#ae81ff">51</span>:
+        <span style="color:#66d9ef">break</span>
+mydll[<span style="color:#ae81ff">51</span>]()</code></pre></div>
+<p>While debugging, I would insert a <code>time.sleep(10)</code> call before the export #51 itself, to be able to
+attach a debugger and trace the decryption. As can be seen from the <code>MZ</code> header, the decrypted blob
+is actually an executable:</p>
+
+<p><img src="/images/2016/11/06/ch4_decrypted.png" alt="Decrypted" /></p>
+
+<p>After dumping the exe from memory, it turns out to have our secret melody which provides the parameters for
+the export #50:</p>
+
+<p><img src="/images/2016/11/06/ch4_tune.png" alt="Tune" /></p>
+
+<p>With this information we can finish the script and (after a nice tune) get our flag.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> ctypes <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+
+mydll <span style="color:#f92672">=</span> cdll<span style="color:#f92672">.</span>LoadLibrary(<span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">flareon2016challenge.dll&#34;</span>)
+i <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>
+<span style="color:#66d9ef">while</span> True:
+    i <span style="color:#f92672">=</span> mydll[i]()
+    <span style="color:#66d9ef">if</span> i <span style="color:#f92672">==</span> <span style="color:#ae81ff">51</span>:
+        <span style="color:#66d9ef">break</span>
+mydll[<span style="color:#ae81ff">51</span>]()
+
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x1B8</span>, <span style="color:#ae81ff">0x1F4</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x1B8</span>, <span style="color:#ae81ff">0x1F4</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x1B8</span>, <span style="color:#ae81ff">0x1F4</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x15D</span>, <span style="color:#ae81ff">0x15E</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x20B</span>, <span style="color:#ae81ff">0x96</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x1B8</span>, <span style="color:#ae81ff">0x1F4</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x15D</span>, <span style="color:#ae81ff">0x15E</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x20B</span>, <span style="color:#ae81ff">0x96</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x1B8</span>, <span style="color:#ae81ff">0x3E8</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x293</span>, <span style="color:#ae81ff">0x1F4</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x293</span>, <span style="color:#ae81ff">0x1F4</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x293</span>, <span style="color:#ae81ff">0x1F4</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x2BA</span>, <span style="color:#ae81ff">0x15E</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x20B</span>, <span style="color:#ae81ff">0x96</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x19F</span>, <span style="color:#ae81ff">0x1F4</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x15D</span>, <span style="color:#ae81ff">0x15E</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x20B</span>, <span style="color:#ae81ff">0x96</span>)
+mydll[<span style="color:#ae81ff">50</span>](<span style="color:#ae81ff">0x1B8</span>, <span style="color:#ae81ff">0x3E8</span>)</code></pre></div>
+<p><img src="/images/2016/11/06/ch4_flag.png" alt="Flag" /></p>
+
+<p><code>f0ll0w_t3h_3xp0rts@flare-on.com</code></p>
+
+<h3 id="a-name-ch5-a-challenge-5"><a name="ch5"></a>Challenge #5</h3>
+
+<p>Challenge #5 is a windows binary named <code>smokestack.exe</code>. Initial inspection in
+IDA shows that it expects a command line argument that is at least 10
+characters long:</p>
+
+<p><img src="/images/2016/11/06/ch5_arg.png" alt="Arg" /></p>
+
+<p>Next, the argument is placed in a global array of WORDS at <code>0x40DF20</code>. Then the
+interesting part happens inside the function <code>sub_401610</code>. This function sets
+up an index of functions to be called later, initializes some global variables
+and executes the main loop:</p>
+
+<p><img src="/images/2016/11/06/ch5_loop.png" alt="Loop" /></p>
+
+<p>Inside the loop the program calls <code>sub_401540</code> which uses previously
+initialized index of functions to perform operations on our initial input. Now,
+the most called functions seem to be <code>sub_401000</code> and <code>sub_401080</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">.text:00401000                 push    ebp
+.text:00401001                 mov     ebp, esp
+.text:00401003                 mov     ax, word_40DF1C
+.text:00401009                 add     ax, 1
+.text:0040100D                 mov     word_40DF1C, ax
+.text:00401013                 movzx   ecx, word_40DF1C
+.text:0040101A                 mov     dx, [ebp+arg_0]
+.text:0040101E                 mov     word_40DF20[ecx*2], dx
+.text:00401026                 pop     ebp
+.text:00401027                 retn
+
+.text:00401080                 push    ebp
+.text:00401081                 mov     ebp, esp
+.text:00401083                 push    ecx
+.text:00401084                 movzx   eax, word_40DF1C
+.text:0040108B                 mov     cx, word_40DF20[eax*2]
+.text:00401093                 mov     [ebp+var_4], cx
+.text:00401097                 mov     dx, word_40DF1C
+.text:0040109E                 sub     dx, 1
+.text:004010A2                 mov     word_40DF1C, dx
+.text:004010A9                 mov     ax, [ebp+var_4]
+.text:004010AD                 mov     esp, ebp
+.text:004010AF                 pop     ebp
+.text:004010B0                 retn</code></pre></div>
+<p>The first function takes an argument and stores it at the end
+of our global array and the second function does the opposite - returns the
+last value and decrements the pointer. These functions effectively act like
+PUSH and POP operations on our global array (smokestack). They could be
+implemented in python like the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sub_401000</span>(char):
+    <span style="color:#66d9ef">global</span> v3
+    <span style="color:#66d9ef">global</span> key
+    v3 <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+    key[v3] <span style="color:#f92672">=</span> char
+    <span style="color:#66d9ef">return</span> v3 <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sub_401080</span>():
+    <span style="color:#66d9ef">global</span> v3
+    r <span style="color:#f92672">=</span> key[v3]
+    v3 <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>
+    <span style="color:#66d9ef">return</span> r</code></pre></div>
+<p>So, similarly to the functions above, I have implemented all 14 index functions and the surrounding
+program logic into a huge unpythonic program. The last part shown below uses the implemented functions to
+calculate the correct argument:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e">## Key calculation</span>
+arg <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> reversed(xrange(<span style="color:#ae81ff">10</span>)):
+    reset_()
+    first <span style="color:#f92672">=</span> sub_401610()
+    <span style="color:#66d9ef">for</span> ch <span style="color:#f92672">in</span> xrange(<span style="color:#ae81ff">0x21</span>, <span style="color:#ae81ff">0x7f</span>):
+        reset_()
+        key[i] <span style="color:#f92672">=</span> ch
+        r <span style="color:#f92672">=</span> sub_401610()
+        <span style="color:#66d9ef">if</span> r <span style="color:#f92672">!=</span> first:
+            arg <span style="color:#f92672">+=</span> chr(ch)
+            final_key[i] <span style="color:#f92672">=</span> ch
+            <span style="color:#66d9ef">break</span>
+
+<span style="color:#66d9ef">print</span> arg[::<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]</code></pre></div>
+<p>Now, the whole script is too big to be posted here (you can find it on <a href="https://github.com/mislusnys/ctfs/tree/master/flareon3">github</a>,
+along with other scripts). The final result:</p>
+
+<p><img src="/images/2016/11/06/ch5_key.png" alt="Flag" /></p>
+
+<p><code>A_p0p_pu$H_&amp;_a_Jmp@flare-on.com</code></p>
+
+<h3 id="a-name-ch6-a-challenge-6"><a name="ch6"></a>Challenge #6</h3>
+
+<p>For #6 we have a windows binary called <code>khaki.exe</code>. When executed - it presents
+us with a guessing game:</p>
+
+<p><img src="/images/2016/11/06/ch6_guess.png" alt="Challenge6" /></p>
+
+<p>Initial analysis of the strings shows that it is a binary compiled
+with <code>py2exe</code>. Normally, we would decompile the
+binary with <code>uncompyle</code> or a similar decompiler and get the python source code.
+However, in this case the decompilation fails due to some unknown
+modifications in the binary. A quick google search finds a FLARE blog <a href="https://www.fireeye.com/blog/threat-research/2016/05/deobfuscating_python.html">post</a> about this
+particular issue. As it turns out, the python bytecode was manually manipulated to
+prevent easy decompilation. The blog post goes into great detail about the
+issue and provides a tool which enables us to get a clean decompile. With the
+help of the provided tool, we get the python source:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> sys<span style="color:#f92672">,</span> random
+__version__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Flare-On ultra python obfuscater 2000&#39;</span>
+target <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">101</span>)
+count <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+error_input <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;a&#39;</span>
+<span style="color:#66d9ef">while</span> True:
+    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;(Guesses: </span><span style="color:#e6db74">%d</span><span style="color:#e6db74">) Pick a number between 1 and 100:&#39;</span> <span style="color:#f92672">%</span> count,
+    input <span style="color:#f92672">=</span> sys<span style="color:#f92672">.</span>stdin<span style="color:#f92672">.</span>readline()
+    <span style="color:#66d9ef">try</span>:
+        input <span style="color:#f92672">=</span> int(input, <span style="color:#ae81ff">0</span>)
+    <span style="color:#66d9ef">except</span>:
+        error_input <span style="color:#f92672">=</span> input
+        <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;Invalid input: </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">%</span> error_input
+        <span style="color:#66d9ef">continue</span>
+
+    <span style="color:#66d9ef">if</span> target <span style="color:#f92672">==</span> input:
+        <span style="color:#66d9ef">break</span>
+    <span style="color:#66d9ef">if</span> input <span style="color:#f92672">&lt;</span> target:
+        <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;Too low, try again&#39;</span>
+    <span style="color:#66d9ef">else</span>:
+        <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;Too high, try again&#39;</span>
+    count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+
+<span style="color:#66d9ef">if</span> target <span style="color:#f92672">==</span> input:
+    win_msg <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Wahoo, you guessed it with </span><span style="color:#e6db74">%d</span><span style="color:#e6db74"> guesses</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">%</span> count
+    sys<span style="color:#f92672">.</span>stdout<span style="color:#f92672">.</span>write(win_msg)
+<span style="color:#66d9ef">if</span> count <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;Status: super guesser </span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">%</span> count
+    sys<span style="color:#f92672">.</span>exit(<span style="color:#ae81ff">1</span>)
+<span style="color:#66d9ef">if</span> count <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">25</span>:
+    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;Status: took too long </span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">%</span> count
+    sys<span style="color:#f92672">.</span>exit(<span style="color:#ae81ff">1</span>)
+<span style="color:#66d9ef">else</span>:
+    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;Status: </span><span style="color:#e6db74">%d</span><span style="color:#e6db74"> guesses&#39;</span> <span style="color:#f92672">%</span> count
+<span style="color:#66d9ef">if</span> error_input <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#39;&#39;</span>:
+    tmp <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join((chr(ord(x) <span style="color:#f92672">^</span> <span style="color:#ae81ff">66</span>) <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> error_input))<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#39;hex&#39;</span>)
+    <span style="color:#66d9ef">if</span> tmp <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#39;312a232f272e27313162322e372548&#39;</span>:
+        sys<span style="color:#f92672">.</span>exit(<span style="color:#ae81ff">0</span>)
+    stuffs <span style="color:#f92672">=</span> [<span style="color:#ae81ff">67</span>, <span style="color:#ae81ff">139</span>, <span style="color:#ae81ff">119</span>, <span style="color:#ae81ff">165</span>, <span style="color:#ae81ff">232</span>, <span style="color:#ae81ff">86</span>, <span style="color:#ae81ff">207</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">79</span>, <span style="color:#ae81ff">67</span>, <span style="color:#ae81ff">45</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">230</span>, <span style="color:#ae81ff">190</span>,
+     <span style="color:#ae81ff">181</span>, <span style="color:#ae81ff">74</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">148</span>, <span style="color:#ae81ff">71</span>, <span style="color:#ae81ff">243</span>, <span style="color:#ae81ff">246</span>, <span style="color:#ae81ff">67</span>, <span style="color:#ae81ff">142</span>, <span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">92</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">115</span>, <span style="color:#ae81ff">240</span>, <span style="color:#ae81ff">226</span>, <span style="color:#ae81ff">171</span>]
+
+    <span style="color:#f92672">import</span> hashlib
+    stuffer <span style="color:#f92672">=</span> hashlib<span style="color:#f92672">.</span>md5(win_msg <span style="color:#f92672">+</span> tmp)<span style="color:#f92672">.</span>digest()
+    <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> range(len(stuffs)):
+        <span style="color:#66d9ef">print</span> chr(stuffs[x] <span style="color:#f92672">^</span> ord(stuffer[x <span style="color:#f92672">%</span> len(stuffer)])),
+
+    <span style="color:#66d9ef">print</span></code></pre></div>
+<p>As we can see, the program expects us to guess a random number in a certain
+number of tries as well as provide a certain bad input (&lsquo;shameless plug&rsquo;
+- a reference to the FLARE blog post) for
+one of those tries. I have reduced this code to only the relevant part, looping
+through possible number of guesses, one of which produces our flag:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> hashlib
+
+tmp <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;312a232f272e27313162322e372548&#39;</span>
+stuffs <span style="color:#f92672">=</span> [<span style="color:#ae81ff">67</span>, <span style="color:#ae81ff">139</span>, <span style="color:#ae81ff">119</span>, <span style="color:#ae81ff">165</span>, <span style="color:#ae81ff">232</span>, <span style="color:#ae81ff">86</span>, <span style="color:#ae81ff">207</span>, <span style="color:#ae81ff">61</span>,
+<span style="color:#ae81ff">79</span>, <span style="color:#ae81ff">67</span>, <span style="color:#ae81ff">45</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">230</span>, <span style="color:#ae81ff">190</span>, <span style="color:#ae81ff">181</span>, <span style="color:#ae81ff">74</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">148</span>, <span style="color:#ae81ff">71</span>,
+<span style="color:#ae81ff">243</span>, <span style="color:#ae81ff">246</span>, <span style="color:#ae81ff">67</span>, <span style="color:#ae81ff">142</span>, <span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">61</span>, <span style="color:#ae81ff">92</span>, <span style="color:#ae81ff">58</span>, <span style="color:#ae81ff">115</span>, <span style="color:#ae81ff">240</span>, <span style="color:#ae81ff">226</span>, <span style="color:#ae81ff">171</span>]
+
+<span style="color:#66d9ef">for</span> count <span style="color:#f92672">in</span> xrange(<span style="color:#ae81ff">25</span>):
+    win_msg <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Wahoo, you guessed it with </span><span style="color:#e6db74">%d</span><span style="color:#e6db74"> guesses</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">%</span> count
+    stuffer <span style="color:#f92672">=</span> hashlib<span style="color:#f92672">.</span>md5(win_msg <span style="color:#f92672">+</span> tmp)<span style="color:#f92672">.</span>digest()
+    s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+    <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> range(len(stuffs)):
+        s <span style="color:#f92672">+=</span> chr(stuffs[x] <span style="color:#f92672">^</span> ord(stuffer[x <span style="color:#f92672">%</span> len(stuffer)]))
+
+    <span style="color:#66d9ef">print</span> s</code></pre></div>
+<p><img src="/images/2016/11/06/ch6_flag.png" alt="Flag" /></p>
+
+<p><code>1mp0rt3d_pygu3ss3r@flare-on.com</code></p>
+
+<h3 id="a-name-ch7-a-challenge-7"><a name="ch7"></a>Challenge #7</h3>
+
+<p>Challenge #7 is a linux binary named <code>hashes</code>. Upon trying to run the binary
+for the first time it becomes evident (missing libgo.so.7) that it was written in Go programming
+language. After installing required dependency (libgo7) and setting up remote
+linux debugging with IDA, we can dive into the workings of this binary. Now,
+analyzing and debugging Go binaries is quite confusing, because of the use of
+<code>channels</code> and strange stack manipulations while calling functions. After
+fighting with this for a while, we find the interesting parts:</p>
+
+<p><img src="/images/2016/11/06/ch7_trip_sha1.png" alt="SHA-1" /></p>
+
+<p>Here, the program <code>slices</code> the program argument (which should be 30 chars long)
+into 5 pieces and calculates a triple SHA1 hash on each of them. Later, it compares the results to
+effectively hardcoed values (by using a lookup). In order to calculate our
+flag, we have to brute force the hashes. The task is quite feasible given that
+our inputs are only 6 chars long and there&rsquo;s a nice limitation on possible
+characters inside the program:</p>
+
+<p><img src="/images/2016/11/06/ch7_chars.png" alt="Chars" /></p>
+
+<p>A part of the script that cracks the hashes is shown below. We could decrease the cracking time
+by using the information that all the flags in this challenge end with <code>@flare-on.com</code>, however,
+on my laptop the whole bruteforcing time was ~20min, so not a huge loss there.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">trip_sha1</span>(s):
+        <span style="color:#66d9ef">return</span> hashlib<span style="color:#f92672">.</span>sha1(hashlib<span style="color:#f92672">.</span>sha1((hashlib<span style="color:#f92672">.</span>sha1(s)<span style="color:#f92672">.</span>digest()))<span style="color:#f92672">.</span>digest())<span style="color:#f92672">.</span>hexdigest()
+
+const <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x1cd</span>
+current <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x450</span>
+
+hashes <span style="color:#f92672">=</span> [[],[],[],[],[]]
+
+<span style="color:#66d9ef">for</span> h <span style="color:#f92672">in</span> reversed(xrange(<span style="color:#ae81ff">5</span>)):
+    <span style="color:#66d9ef">for</span> b <span style="color:#f92672">in</span> xrange(<span style="color:#ae81ff">20</span>):
+        byte <span style="color:#f92672">=</span> blob[current]
+        current <span style="color:#f92672">-=</span> <span style="color:#ae81ff">0x1cd</span>
+        <span style="color:#66d9ef">if</span> current <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>:
+            current <span style="color:#f92672">+=</span> <span style="color:#ae81ff">0x1000</span>
+        hashes[h] <span style="color:#f92672">=</span> [byte] <span style="color:#f92672">+</span> hashes[h]
+
+h_str <span style="color:#f92672">=</span> [binascii<span style="color:#f92672">.</span>hexlify(<span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join([chr(b) <span style="color:#66d9ef">for</span> b <span style="color:#f92672">in</span> h])) <span style="color:#66d9ef">for</span> h <span style="color:#f92672">in</span> hashes]
+
+alphabet <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;abcdefghijklmnopqrstuvwxyz@-._1234&#39;</span>
+
+<span style="color:#75715e"># We have the hashes, need to crack them</span>
+
+<span style="color:#66d9ef">for</span> c1 <span style="color:#f92672">in</span> alphabet:
+    <span style="color:#66d9ef">for</span> c2 <span style="color:#f92672">in</span> alphabet:
+        <span style="color:#66d9ef">for</span> c3 <span style="color:#f92672">in</span> alphabet:
+            <span style="color:#66d9ef">for</span> c4 <span style="color:#f92672">in</span> alphabet:
+                <span style="color:#66d9ef">for</span> c5 <span style="color:#f92672">in</span> alphabet:
+                    <span style="color:#66d9ef">for</span> c6 <span style="color:#f92672">in</span> alphabet:
+                        six <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join([c1,c2,c3,c4,c5,c6])
+                        <span style="color:#66d9ef">if</span> trip_sha1(six) <span style="color:#f92672">in</span> h_str:
+                            <span style="color:#66d9ef">print</span> six, trip_sha1(six)</code></pre></div>
+<p>Combining all the cracked pieces together we get the flag:</p>
+
+<p><code>h4sh3d_th3_h4sh3s@flare-on.com</code></p>
+
+<h3 id="a-name-ch8-a-challenge-8"><a name="ch8"></a>Challenge #8</h3>
+
+<p>Challenge #8 is a file called <code>CHIMERA.EXE</code>. This one was a favourite challenge of many participants. It has
+a very clever twist which caught many people (myself included) of guard. As it turns out, the binary is both
+a valid win32 application as well as a valid DOS 16-bit binary. There are a few subtle clues that point
+to that discovery, one of which is the &lsquo;This program cannot <strong>not</strong> be run in DOS mode.&rsquo; message<br />
+inside the DOS header. I will skip the 32bit part, as it is a dead end.</p>
+
+<p>To disassemble in 16bit mode, we have to specifically tell IDA to open the file as DOS executable.
+Inside, we see some self-decrypting code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">seg000:07C6 loc_107C6:                              ; CODE XREF: seg000:0009j
+seg000:07C6                 mov     cx, 70h ; &#39;p&#39;
+seg000:07C9
+seg000:07C9 loc_107C9:                              ; CODE XREF: seg000:07D2j
+seg000:07C9                 mov     bx, cx
+seg000:07CB                 dec     bx
+seg000:07CC                 add     bx, bx
+seg000:07CE                 add     [bx+7D4h], cx
+seg000:07D2                 loop    loc_107C9
+seg000:07D4
+seg000:07D4 loc_107D4:                              ; CODE XREF: seg000:loc_107D4j
+seg000:07D4                 jmp     short near ptr loc_107D4+1
+seg000:07D4 ; ---------------------------------------------------------------------------
+seg000:07D6                 db 0BEh, 0B8h, 0FDh, 29h, 0C9h, 21h, 7Ch, 0E9h, 0C0h, 7
+seg000:07D6                 db 8, 8Fh, 0C4h, 0, 0B1h, 0EBh, 0FCh, 73h, 0F8h, 74h, 0F5h
+seg000:07D6                 db 0E7h, 0A7h, 9, 0BFh, 21h, 0ABh, 5Eh, 0F7h, 0B3h, 0F9h
+seg000:07D6                 db 74h, 0F2h, 73h, 0EFh, 82h, 0B0h, 0CDh, 0Ch, 31h, 0B3h
+seg000:07D6                 db 74h, 0EAh, 2Ch, 9Ah, 97h, 71h, 26h, 45h, 7, 1Dh, 0E1h</code></pre></div>
+<p>I have replicated the decryption routine in a small IDAPython script, which allows a further static
+analysis into the binary:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> idc
+
+st <span style="color:#f92672">=</span> idc<span style="color:#f92672">.</span>SelStart()
+
+cx <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x70</span>
+<span style="color:#66d9ef">while</span> cx <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+    bx <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> (cx <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>)
+    temp <span style="color:#f92672">=</span> idc<span style="color:#f92672">.</span>Word(st <span style="color:#f92672">+</span> bx) <span style="color:#f92672">+</span> cx
+    idc<span style="color:#f92672">.</span>PatchWord(st <span style="color:#f92672">+</span> bx, temp)
+    cx <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span></code></pre></div>
+<p>Now the decrypted code shows up inside IDA:</p>
+
+<p><img src="/images/2016/11/06/ch8_decrypted.png" alt="Decrypted" /></p>
+
+<p>As we can see, the code is still not correct as there a jumps landing in the middle of other instructions,
+making them invalid. We can fix that quite easily by undefining (&lsquo;U&rsquo;) and redefining instructions as code (&lsquo;C&rsquo;)
+in IDA. After fixing the first jumps, the code looks like this:</p>
+
+<p><img src="/images/2016/11/06/ch8_redefined.png" alt="Corrected" /></p>
+
+<p>After fixing all the decrypted code, I could analyze the workings of the program. In addition to reading the
+disassembly I used a <code>DOSBox</code> debugger to validate my findings and trace parts of the program.</p>
+
+<p>First, CHIMERA checks if the program is running after the year 1990 and exits if that&rsquo;s the case. We can set
+the clock back or (as I did) change it inside the debugger. Second, it reads an input string and after
+encoding it, compares the result to a correct string&rsquo;s encoded value.</p>
+
+<p>This python script reverses the encoding and finds our flag:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">target <span style="color:#f92672">=</span> [  
+  <span style="color:#ae81ff">0x38</span>, <span style="color:#ae81ff">0xE1</span>, <span style="color:#ae81ff">0x4A</span>, <span style="color:#ae81ff">0x1B</span>, <span style="color:#ae81ff">0x0C</span>, <span style="color:#ae81ff">0x1A</span>, <span style="color:#ae81ff">0x46</span>, <span style="color:#ae81ff">0x46</span>, <span style="color:#ae81ff">0x0A</span>, 
+  <span style="color:#ae81ff">0x96</span>, <span style="color:#ae81ff">0x29</span>, <span style="color:#ae81ff">0x73</span>, <span style="color:#ae81ff">0x73</span>, <span style="color:#ae81ff">0xA4</span>, <span style="color:#ae81ff">0x69</span>, <span style="color:#ae81ff">0x03</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x1B</span>, 
+  <span style="color:#ae81ff">0xA8</span>, <span style="color:#ae81ff">0xF8</span>, <span style="color:#ae81ff">0xB8</span>, <span style="color:#ae81ff">0x24</span>, <span style="color:#ae81ff">0x16</span>, <span style="color:#ae81ff">0xD6</span>, <span style="color:#ae81ff">0x09</span>, <span style="color:#ae81ff">0xCB</span>]
+
+lookup <span style="color:#f92672">=</span> [
+ <span style="color:#ae81ff">0xFF</span>, <span style="color:#ae81ff">0x15</span>, <span style="color:#ae81ff">0x74</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x40</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x89</span>, <span style="color:#ae81ff">0xEC</span>, <span style="color:#ae81ff">0x5D</span>, <span style="color:#ae81ff">0xC3</span>, 
+  <span style="color:#ae81ff">0x42</span>, <span style="color:#ae81ff">0x46</span>, <span style="color:#ae81ff">0xC0</span>, <span style="color:#ae81ff">0x63</span>, <span style="color:#ae81ff">0x86</span>, <span style="color:#ae81ff">0x2A</span>, <span style="color:#ae81ff">0xAB</span>, <span style="color:#ae81ff">0x08</span>, <span style="color:#ae81ff">0xBF</span>, <span style="color:#ae81ff">0x8C</span>, 
+  <span style="color:#ae81ff">0x4C</span>, <span style="color:#ae81ff">0x25</span>, <span style="color:#ae81ff">0x19</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0x92</span>, <span style="color:#ae81ff">0xB0</span>, <span style="color:#ae81ff">0xAD</span>, <span style="color:#ae81ff">0x14</span>, <span style="color:#ae81ff">0xA2</span>, <span style="color:#ae81ff">0xB6</span>, 
+  <span style="color:#ae81ff">0x67</span>, <span style="color:#ae81ff">0xDD</span>, <span style="color:#ae81ff">0x39</span>, <span style="color:#ae81ff">0xD8</span>, <span style="color:#ae81ff">0x5F</span>, <span style="color:#ae81ff">0x3F</span>, <span style="color:#ae81ff">0x7B</span>, <span style="color:#ae81ff">0x5C</span>, <span style="color:#ae81ff">0xC2</span>, <span style="color:#ae81ff">0xB2</span>, 
+  <span style="color:#ae81ff">0xF6</span>, <span style="color:#ae81ff">0x2E</span>, <span style="color:#ae81ff">0x75</span>, <span style="color:#ae81ff">0x9B</span>, <span style="color:#ae81ff">0x61</span>, <span style="color:#ae81ff">0x94</span>, <span style="color:#ae81ff">0xCF</span>, <span style="color:#ae81ff">0xCE</span>, <span style="color:#ae81ff">0x6A</span>, <span style="color:#ae81ff">0x98</span>, 
+  <span style="color:#ae81ff">0x50</span>, <span style="color:#ae81ff">0xF2</span>, <span style="color:#ae81ff">0x5B</span>, <span style="color:#ae81ff">0xF0</span>, <span style="color:#ae81ff">0x45</span>, <span style="color:#ae81ff">0x30</span>, <span style="color:#ae81ff">0x0E</span>, <span style="color:#ae81ff">0x38</span>, <span style="color:#ae81ff">0xEB</span>, <span style="color:#ae81ff">0x3B</span>, 
+  <span style="color:#ae81ff">0x6C</span>, <span style="color:#ae81ff">0x66</span>, <span style="color:#ae81ff">0x7F</span>, <span style="color:#ae81ff">0x24</span>, <span style="color:#ae81ff">0x3D</span>, <span style="color:#ae81ff">0xDF</span>, <span style="color:#ae81ff">0x88</span>, <span style="color:#ae81ff">0x97</span>, <span style="color:#ae81ff">0xB9</span>, <span style="color:#ae81ff">0xB3</span>, 
+  <span style="color:#ae81ff">0xF1</span>, <span style="color:#ae81ff">0xCB</span>, <span style="color:#ae81ff">0x83</span>, <span style="color:#ae81ff">0x99</span>, <span style="color:#ae81ff">0x1A</span>, <span style="color:#ae81ff">0x0D</span>, <span style="color:#ae81ff">0xEF</span>, <span style="color:#ae81ff">0xB1</span>, <span style="color:#ae81ff">0x03</span>, <span style="color:#ae81ff">0x55</span>, 
+  <span style="color:#ae81ff">0x9E</span>, <span style="color:#ae81ff">0x9A</span>, <span style="color:#ae81ff">0x7A</span>, <span style="color:#ae81ff">0x10</span>, <span style="color:#ae81ff">0xE0</span>, <span style="color:#ae81ff">0x36</span>, <span style="color:#ae81ff">0xE8</span>, <span style="color:#ae81ff">0xD3</span>, <span style="color:#ae81ff">0xE4</span>, <span style="color:#ae81ff">0x32</span>, 
+  <span style="color:#ae81ff">0xC1</span>, <span style="color:#ae81ff">0x78</span>, <span style="color:#ae81ff">0x07</span>, <span style="color:#ae81ff">0xB7</span>, <span style="color:#ae81ff">0x6B</span>, <span style="color:#ae81ff">0xC7</span>, <span style="color:#ae81ff">0x70</span>, <span style="color:#ae81ff">0xC9</span>, <span style="color:#ae81ff">0x2C</span>, <span style="color:#ae81ff">0xA0</span>, 
+  <span style="color:#ae81ff">0x91</span>, <span style="color:#ae81ff">0x35</span>, <span style="color:#ae81ff">0x6D</span>, <span style="color:#ae81ff">0xFE</span>, <span style="color:#ae81ff">0x73</span>, <span style="color:#ae81ff">0x5E</span>, <span style="color:#ae81ff">0xF4</span>, <span style="color:#ae81ff">0xA4</span>, <span style="color:#ae81ff">0xD9</span>, <span style="color:#ae81ff">0xDB</span>, 
+  <span style="color:#ae81ff">0x43</span>, <span style="color:#ae81ff">0x69</span>, <span style="color:#ae81ff">0xF5</span>, <span style="color:#ae81ff">0x8D</span>, <span style="color:#ae81ff">0xEE</span>, <span style="color:#ae81ff">0x44</span>, <span style="color:#ae81ff">0x7D</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0xB5</span>, <span style="color:#ae81ff">0xDC</span>, 
+  <span style="color:#ae81ff">0x4B</span>, <span style="color:#ae81ff">0x02</span>, <span style="color:#ae81ff">0xA1</span>, <span style="color:#ae81ff">0xE3</span>, <span style="color:#ae81ff">0xD2</span>, <span style="color:#ae81ff">0xA6</span>, <span style="color:#ae81ff">0x21</span>, <span style="color:#ae81ff">0x3E</span>, <span style="color:#ae81ff">0x2F</span>, <span style="color:#ae81ff">0xA3</span>, 
+  <span style="color:#ae81ff">0xD7</span>, <span style="color:#ae81ff">0xBB</span>, <span style="color:#ae81ff">0x84</span>, <span style="color:#ae81ff">0x5A</span>, <span style="color:#ae81ff">0xFB</span>, <span style="color:#ae81ff">0x8F</span>, <span style="color:#ae81ff">0x12</span>, <span style="color:#ae81ff">0x1C</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x28</span>, 
+  <span style="color:#ae81ff">0xC5</span>, <span style="color:#ae81ff">0x76</span>, <span style="color:#ae81ff">0x59</span>, <span style="color:#ae81ff">0x9C</span>, <span style="color:#ae81ff">0xF7</span>, <span style="color:#ae81ff">0x33</span>, <span style="color:#ae81ff">0x06</span>, <span style="color:#ae81ff">0x27</span>, <span style="color:#ae81ff">0x0A</span>, <span style="color:#ae81ff">0x0B</span>, 
+  <span style="color:#ae81ff">0xAF</span>, <span style="color:#ae81ff">0x71</span>, <span style="color:#ae81ff">0x16</span>, <span style="color:#ae81ff">0x4A</span>, <span style="color:#ae81ff">0xE9</span>, <span style="color:#ae81ff">0x9F</span>, <span style="color:#ae81ff">0x4F</span>, <span style="color:#ae81ff">0x6F</span>, <span style="color:#ae81ff">0xE2</span>, <span style="color:#ae81ff">0x0F</span>, 
+  <span style="color:#ae81ff">0xBE</span>, <span style="color:#ae81ff">0x2B</span>, <span style="color:#ae81ff">0xE7</span>, <span style="color:#ae81ff">0x56</span>, <span style="color:#ae81ff">0xD5</span>, <span style="color:#ae81ff">0x53</span>, <span style="color:#ae81ff">0x79</span>, <span style="color:#ae81ff">0x2D</span>, <span style="color:#ae81ff">0x64</span>, <span style="color:#ae81ff">0x17</span>, 
+  <span style="color:#ae81ff">0x95</span>, <span style="color:#ae81ff">0xA7</span>, <span style="color:#ae81ff">0xBD</span>, <span style="color:#ae81ff">0x7C</span>, <span style="color:#ae81ff">0x1D</span>, <span style="color:#ae81ff">0x58</span>, <span style="color:#ae81ff">0x93</span>, <span style="color:#ae81ff">0xA5</span>, <span style="color:#ae81ff">0x65</span>, <span style="color:#ae81ff">0xF8</span>, 
+  <span style="color:#ae81ff">0x18</span>, <span style="color:#ae81ff">0x13</span>, <span style="color:#ae81ff">0xEA</span>, <span style="color:#ae81ff">0xBC</span>, <span style="color:#ae81ff">0xE5</span>, <span style="color:#ae81ff">0xF3</span>, <span style="color:#ae81ff">0x37</span>, <span style="color:#ae81ff">0x04</span>, <span style="color:#ae81ff">0x96</span>, <span style="color:#ae81ff">0xA8</span>, 
+  <span style="color:#ae81ff">0x1E</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x29</span>, <span style="color:#ae81ff">0x82</span>, <span style="color:#ae81ff">0x51</span>, <span style="color:#ae81ff">0x3C</span>, <span style="color:#ae81ff">0x68</span>, <span style="color:#ae81ff">0x1F</span>, <span style="color:#ae81ff">0x8E</span>, <span style="color:#ae81ff">0xDA</span>, 
+  <span style="color:#ae81ff">0x8A</span>, <span style="color:#ae81ff">0x05</span>, <span style="color:#ae81ff">0x22</span>, <span style="color:#ae81ff">0x72</span>, <span style="color:#ae81ff">0x49</span>, <span style="color:#ae81ff">0xFA</span>, <span style="color:#ae81ff">0x87</span>, <span style="color:#ae81ff">0xA9</span>, <span style="color:#ae81ff">0x54</span>, <span style="color:#ae81ff">0x62</span>, 
+  <span style="color:#ae81ff">0xC6</span>, <span style="color:#ae81ff">0xAA</span>, <span style="color:#ae81ff">0x09</span>, <span style="color:#ae81ff">0xB4</span>, <span style="color:#ae81ff">0xFD</span>, <span style="color:#ae81ff">0xD6</span>, <span style="color:#ae81ff">0xD1</span>, <span style="color:#ae81ff">0xAC</span>, <span style="color:#ae81ff">0x85</span>, <span style="color:#ae81ff">0x11</span>, 
+  <span style="color:#ae81ff">0x47</span>, <span style="color:#ae81ff">0x3A</span>, <span style="color:#ae81ff">0x9D</span>, <span style="color:#ae81ff">0xE6</span>, <span style="color:#ae81ff">0x4D</span>, <span style="color:#ae81ff">0x1B</span>, <span style="color:#ae81ff">0xCC</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0x80</span>, <span style="color:#ae81ff">0x23</span>, 
+  <span style="color:#ae81ff">0xFC</span>, <span style="color:#ae81ff">0xED</span>, <span style="color:#ae81ff">0x8B</span>, <span style="color:#ae81ff">0x7E</span>, <span style="color:#ae81ff">0x60</span>, <span style="color:#ae81ff">0xCD</span>, <span style="color:#ae81ff">0x6E</span>, <span style="color:#ae81ff">0x57</span>, <span style="color:#ae81ff">0xBA</span>, <span style="color:#ae81ff">0xDE</span>, 
+  <span style="color:#ae81ff">0xAE</span>, <span style="color:#ae81ff">0xCA</span>, <span style="color:#ae81ff">0xC4</span>, <span style="color:#ae81ff">0x77</span>, <span style="color:#ae81ff">0x0C</span>, <span style="color:#ae81ff">0x4E</span>, <span style="color:#ae81ff">0xD4</span>, <span style="color:#ae81ff">0xD0</span>, <span style="color:#ae81ff">0xC8</span>, <span style="color:#ae81ff">0xE1</span>, 
+  <span style="color:#ae81ff">0xB8</span>, <span style="color:#ae81ff">0xF9</span>, <span style="color:#ae81ff">0x26</span>, <span style="color:#ae81ff">0x90</span>, <span style="color:#ae81ff">0x81</span>, <span style="color:#ae81ff">0x34</span>]
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ROL</span>(data, shift, size<span style="color:#f92672">=</span><span style="color:#ae81ff">8</span>):
+    shift <span style="color:#f92672">%=</span> size
+    remains <span style="color:#f92672">=</span> data <span style="color:#f92672">&gt;&gt;</span> (size <span style="color:#f92672">-</span> shift)
+    body <span style="color:#f92672">=</span> (data <span style="color:#f92672">&lt;&lt;</span> shift) <span style="color:#f92672">-</span> (remains <span style="color:#f92672">&lt;&lt;</span> size )
+    <span style="color:#66d9ef">return</span> (body <span style="color:#f92672">+</span> remains)
+
+before <span style="color:#f92672">=</span> []
+before<span style="color:#f92672">.</span>append(target[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">^</span> <span style="color:#ae81ff">0xC5</span>)
+
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> xrange(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0x1A</span>):
+    before<span style="color:#f92672">.</span>append(target[i] <span style="color:#f92672">^</span> target[i <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>])
+
+before<span style="color:#f92672">.</span>append(<span style="color:#ae81ff">0x97</span>)
+
+rflag <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> reversed(xrange(<span style="color:#ae81ff">0x1A</span>)):
+    dl <span style="color:#f92672">=</span> before[i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>]
+    bx <span style="color:#f92672">=</span> ROL(dl, <span style="color:#ae81ff">3</span>)
+    dl <span style="color:#f92672">=</span> lookup[lookup[bx]]
+    ch <span style="color:#f92672">=</span> dl <span style="color:#f92672">^</span> before[i]
+    rflag <span style="color:#f92672">+=</span> chr(ch)
+
+<span style="color:#66d9ef">print</span> rflag[::<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]</code></pre></div>
+<p><code>retr0_hack1ng@flare-on.com</code></p>
+
+<h3 id="a-name-ch9-a-challenge-9"><a name="ch9"></a>Challenge #9</h3>
+
+<p>Challenge #9 is a .NET binary named <code>GUI.exe</code>. Running it gives us:</p>
+
+<p><img src="/images/2016/11/06/ch9_gui.png" alt="GUI" /></p>
+
+<p>One of the best tools for reversing .NET binaries is <code>dnSpy</code>. Upon opening the file in dnSpy, we see that the
+code has been obfuscated with ConfuserEx 1.0. The button click handler function looks like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cs" data-lang="cs"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> button1_Click(<span style="color:#66d9ef">object</span> sender, EventArgs e)
+{
+	<span style="color:#66d9ef">byte</span><span style="color:#a6e22e">[]</span> buf = Form1.ReadResource(&lt;Module&gt;.<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u200B<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u200B<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u206A<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u202E&lt;<span style="color:#66d9ef">string</span>&gt;(<span style="color:#ae81ff">282000140</span>u));
+	<span style="color:#66d9ef">byte</span><span style="color:#a6e22e">[]</span> buffer = <span style="color:#66d9ef">this</span>.decryptBuffer(buf);
+	<span style="color:#66d9ef">byte</span><span style="color:#a6e22e">[]</span> rawAssembly = util.DecompressBuffer(buffer);
+	Assembly assembly = Assembly.Load(rawAssembly);
+	Type type = assembly.GetType(&lt;Module&gt;.<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u206A<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u200B<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u206A<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u202E&lt;<span style="color:#66d9ef">string</span>&gt;(<span style="color:#ae81ff">370292149</span>u));
+	MethodInfo method = type.GetMethod(&lt;Module&gt;.<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200B<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u206A<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u200B<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u202E&lt;<span style="color:#66d9ef">string</span>&gt;(<span style="color:#ae81ff">547307959</span>u));
+	<span style="color:#66d9ef">bool</span> flag = (<span style="color:#66d9ef">bool</span>)method.Invoke(<span style="color:#66d9ef">null</span>, <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">object</span><span style="color:#a6e22e">[]</span>
+	{
+		&lt;Module&gt;.<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200B<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u206A<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u200B<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u202E&lt;<span style="color:#66d9ef">string</span>&gt;(<span style="color:#ae81ff">292816780</span>u)
+	});
+	<span style="color:#66d9ef">if</span> (flag)
+	{
+		MessageBox.Show(&lt;Module&gt;.<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u202E&lt;<span style="color:#66d9ef">string</span>&gt;(<span style="color:#ae81ff">3452886671</span>u));
+		<span style="color:#66d9ef">return</span>;
+	}
+	MessageBox.Show(&lt;Module&gt;.<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u206A<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u200F<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u202A<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u206F<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u200C<span style="color:#960050;background-color:#1e0010">\</span>u200E<span style="color:#960050;background-color:#1e0010">\</span>u206A<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u202E<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u200D<span style="color:#960050;background-color:#1e0010">\</span>u202C<span style="color:#960050;background-color:#1e0010">\</span>u206E<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u206B<span style="color:#960050;background-color:#1e0010">\</span>u206D<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u202B<span style="color:#960050;background-color:#1e0010">\</span>u202D<span style="color:#960050;background-color:#1e0010">\</span>u206C<span style="color:#960050;background-color:#1e0010">\</span>u206A<span style="color:#960050;background-color:#1e0010">\</span>u202E&lt;<span style="color:#66d9ef">string</span>&gt;(<span style="color:#ae81ff">458656109</span>u));
+</code></pre></div>
+<p>I have found a few tools that help with deobfuscating ConfuserEx, namely <code>deDot</code> and some tools produced by the
+members of the tuts4you forum. With the help of these tools, we can deobfuscate the code to something readable:</p>
+
+<p><img src="/images/2016/11/06/ch9_deob.png" alt="Deobfucated" /></p>
+
+<p>As we can see, the program dynamically decrypts <code>Layer1.dll</code>, loads the assembly and calls the <code>Start</code> function. At this
+point we can dump the Layer1.dll and deobfuscate it - to make it more readable:</p>
+
+<p><img src="/images/2016/11/06/ch9_layer1.png" alt="Layer1" /></p>
+
+<p>The code here checks for a debugger with <code>IsDebuggerPresent()</code> (this one is bypassed with dnSpy by default) and
+checks that cpuCount is &gt; 1 (a simple VM check, as most VM&rsquo;s run with 1 virtual CPU). Afterwards, there is
+a <code>getKey()</code> function which enumerates folders in the current directory and looks for a folder named <code>sharing</code>.
+So, we give our VM 2 CPUs and create a &lsquo;sharing&rsquo; folder.</p>
+
+<p>Now, the programs decrypts and loads <code>Layer2.dll</code>.
+Similarly, Layer2 checks for VM usage with a WMI query <code>select * from win32_videocontroller</code> (this can be
+bypassed with a debugger). Later, the <code>getKey</code> function looks for the registry key <code>secret</code> under HKEY_CURRENT_USER.
+After creating the key in the registry, we proceed to Layer3.</p>
+
+<p>Similar to previous checks, this layer checks
+for the existence of the user <code>shamir</code> on the system. After satisfying that check we get a decrypted picture:</p>
+
+<p><img src="/images/2016/11/06/share6-decoded.png" alt="Share6" /></p>
+
+<p>In addition to the decrypted picture, a <code>ssss-combine.exe</code> binary gets placed
+in the folder where the GUI.exe is running from. This binary is a windows
+implementation of the <code>Shamir's Secret Sharing Scheme</code>. To get our flag, we
+need to combine all 6 shares using ssss-combine.exe. We can dump the first
+5 shares from running binary&rsquo;s memory (after successfuly reaching the decoded
+picture part) and the 6th one is inside the decoded png.</p>
+
+<p>Combining all the shares gives us the flag:</p>
+
+<p><img src="/images/2016/11/06/ch9_shares.png" alt="Combine" /></p>
+
+<p><code>Shamir_1s_C0nfused@flare-on.com</code></p>
+
+<h3 id="a-name-ch10-a-challenge-10"><a name="ch10"></a>Challenge #10</h3>
+
+<p>Unlike the previous challenges, this one is not an executable file. Instead we
+are given a pcap file called <code>flava.pcap</code>.</p>
+
+<p>The interesting part of the pcap is the stream 233 (tcp.stream == 233 in wireshark). It starts with a GET
+request to a html page with a bunch of obfuscated javascript:</p>
+
+<p><img src="/images/2016/11/06/ch10_page.png" alt="Page" /></p>
+
+<p>After cleaning up parts of the code, we can analyze what it does. The end goal of the initial javascript is
+to decode and load layer2. The loading happens inside a try/catch block, which suppresses any faulty decoding:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">try</span> {
+    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">FiAwn</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>) {
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">U7weQ</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Function(<span style="color:#a6e22e">i9mk</span>);
+        <span style="color:#a6e22e">U7weQ</span>();
+        <span style="color:#a6e22e">FiAwn</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>
+    } 
+    <span style="color:#66d9ef">else</span> {
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">O0fdFD</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Function(<span style="color:#a6e22e">i9mk</span>);
+        <span style="color:#a6e22e">O0fdFD</span>(<span style="color:#a6e22e">i9mk</span>)
+    }
+} <span style="color:#66d9ef">catch</span> (<span style="color:#a6e22e">lol</span>) {}
+</code></pre></div>
+<p>There are a few checks in the code which prevent a successful decode. The first one is a
+<code>ScriptEngineBuildVersion</code> check and a couple of date checks. After fixing those checks to always return
+the correct values, we decode layer2 (partial view):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">k</span>() {
+ String[<span style="color:#e6db74">&#39;prototype&#39;</span>][<span style="color:#e6db74">&#39;kek&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span>, <span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">d</span>) {
+ <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">e</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>;
+ <span style="color:#a6e22e">a</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">unescape</span>(<span style="color:#a6e22e">a</span>);
+ <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">f</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">f</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">a</span>[<span style="color:#e6db74">&#39;length&#39;</span>]; <span style="color:#a6e22e">f</span><span style="color:#f92672">++</span>) {
+ <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">g</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">b</span> <span style="color:#f92672">^</span> <span style="color:#a6e22e">a</span>[<span style="color:#e6db74">&#39;charCodeAt&#39;</span>](<span style="color:#a6e22e">f</span>);
+ <span style="color:#a6e22e">e</span> <span style="color:#f92672">+=</span> String[<span style="color:#e6db74">&#39;fromCharCode&#39;</span>](<span style="color:#a6e22e">g</span>);
+ <span style="color:#a6e22e">b</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">d</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xFF</span>;
+ }
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">e</span>;
+ }, String[<span style="color:#e6db74">&#39;prototype&#39;</span>][<span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;kek&#39;</span>](<span style="color:#e6db74">&#39;%0B%5Ei&#39;</span>, <span style="color:#ae81ff">108</span>, <span style="color:#ae81ff">41</span>, <span style="color:#ae81ff">237</span>)] <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+ <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;kek&#39;</span>](<span style="color:#e6db74">&#39;%C96%E4B%3Ei_%83n%C1%82%FB%DC%01%EAA+o&#39;</span>, <span style="color:#ae81ff">175</span>, <span style="color:#ae81ff">129</span>, <span style="color:#ae81ff">43</span>);
+ }, String[<span style="color:#e6db74">&#39;prototype&#39;</span>][<span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;kek&#39;</span>](<span style="color:#e6db74">&#39;6%87%24&#39;</span>, <span style="color:#ae81ff">94</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">297</span>)] <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+ <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;kek&#39;</span>](<span style="color:#e6db74">&#39;4%94%0D%86%7BVXJ%AD%1C%87%0E%FE%C0%DA%D2%20%82%01%ACWAJd%B6%06%8D/&#39;</span>, <span style="color:#ae81ff">92</span>, <span style="color:#ae81ff">33</span>, <span style="color:#ae81ff">31</span>);
+ };
+
+ <span style="color:#66d9ef">try</span> {
+ <span style="color:#a6e22e">m</span>();
+ <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">l</span>();
+ } <span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">zzzzz</span>) {}
+}
+
+<span style="color:#66d9ef">try</span> {
+ <span style="color:#a6e22e">k</span>();
+} <span style="color:#66d9ef">catch</span> (<span style="color:#a6e22e">z</span>) {}
+</code></pre></div>
+<p>The end goal of this layer is similar to the first one - to load another decoded javascript. After bypassing a
+few checks for Kaspersky products, we decode the 3rd layer (also partial view):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">Il1Ib</span> <span style="color:#f92672">=</span> Math, <span style="color:#a6e22e">Il1Ic</span> <span style="color:#f92672">=</span> String, <span style="color:#a6e22e">Il1IIll1a</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">JSON</span>, <span style="color:#a6e22e">Il1IIll1b</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">XMLHttpRequest</span>;
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">Il1Ie</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;lol&#39;</span>](<span style="color:#e6db74">&#39;9%E44%BC%1Ap&#39;</span>, <span style="color:#ae81ff">90</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">97</span>),
+ <span style="color:#a6e22e">Il1If</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;&gt;_&lt;&#39;</span>](<span style="color:#e6db74">&#39;%D0%94%18F%A5%C0&#39;</span>, <span style="color:#ae81ff">162</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">199</span>),
+ <span style="color:#a6e22e">Il1Ig</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;OGC&#39;</span>](<span style="color:#e6db74">&#39;%B7%5By4%B6%B4w&#39;</span>, <span style="color:#ae81ff">199</span>, <span style="color:#ae81ff">33</span>, <span style="color:#ae81ff">147</span>),
+ <span style="color:#a6e22e">Il1Ih</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;-Q-&#39;</span>](<span style="color:#e6db74">&#39;%B7j%16%9E%04%88%E4%3Ej&#39;</span>, <span style="color:#ae81ff">199</span>, <span style="color:#ae81ff">17</span>, <span style="color:#ae81ff">225</span>),
+ <span style="color:#a6e22e">Il1I</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;&gt;_O&#39;</span>](<span style="color:#e6db74">&#39;%DB%FCy%7D%E1&#39;</span>, <span style="color:#ae81ff">168</span>, <span style="color:#ae81ff">129</span>, <span style="color:#ae81ff">247</span>),
+ <span style="color:#a6e22e">Il1Ii</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;o3o&#39;</span>](<span style="color:#e6db74">&#39;%C4J%13sI%F7%3D&#39;</span>, <span style="color:#ae81ff">173</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">195</span>),
+ <span style="color:#a6e22e">Il1Ij</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;Orz&#39;</span>](<span style="color:#e6db74">&#39;%D6%E4zP%20%EC&#39;</span>, <span style="color:#ae81ff">181</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">47</span>),
+ <span style="color:#a6e22e">Il1Ik</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;Orz&#39;</span>](<span style="color:#e6db74">&#39;F%92%1C%D5%DF%02&#39;</span>, <span style="color:#ae81ff">52</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">191</span>),
+ <span style="color:#a6e22e">Il1Il</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;^_^&#39;</span>](<span style="color:#e6db74">&#39;%3Eq%01%F4%C7G%FB%B7%F34%A2%94&#39;</span>, <span style="color:#ae81ff">88</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">171</span>),
+ <span style="color:#a6e22e">Il1Im</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;^_^&#39;</span>](<span style="color:#e6db74">&#39;%DFu%5C_c&#39;</span>, <span style="color:#ae81ff">190</span>, <span style="color:#ae81ff">33</span>, <span style="color:#ae81ff">135</span>),
+ <span style="color:#a6e22e">Il1In</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;lol&#39;</span>](<span style="color:#e6db74">&#39;%FA%5E%1A%F6V%9F&#39;</span>, <span style="color:#ae81ff">150</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">77</span>),
+ <span style="color:#a6e22e">Il1Io</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;&gt;_&lt;&#39;</span>](<span style="color:#e6db74">&#39;%F9S%F8%AE%BB%11%89q&#39;</span>, <span style="color:#ae81ff">141</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">111</span>),
+ <span style="color:#a6e22e">Il1Ip</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;OGC&#39;</span>](<span style="color:#e6db74">&#39;%03%F7%B7%B7o%A4%06%D49%03&#39;</span>, <span style="color:#ae81ff">96</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">63</span>),
+ <span style="color:#a6e22e">Il1Iq</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;O_o&#39;</span>](<span style="color:#e6db74">&#39;%C3%BE%10%C3+&#39;</span>, <span style="color:#ae81ff">165</span>, <span style="color:#ae81ff">129</span>, <span style="color:#ae81ff">173</span>),
+ <span style="color:#a6e22e">Il1Ir</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;lol&#39;</span>](<span style="color:#e6db74">&#39;%D4%1B%E7M&#39;</span>, <span style="color:#ae81ff">167</span>, <span style="color:#ae81ff">33</span>, <span style="color:#ae81ff">235</span>);
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">Il1IbbAa</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>[<span style="color:#e6db74">&#39;&gt;_O&#39;</span>](<span style="color:#e6db74">&#39;%10%8D%81%CE%17%A9y9%5B%F0%3Bx%DE%3FC%EB%85%FD%EE%8A%80%FAy%9D%CC%A11%D4KH%23%AF6.%84%5D%28%D8%06dg%24%26%E0%E3%8E0s%A8%1F%B1%10%AF%1B%09%03%E3%02%EBR%5C%A9%13%E5%E3O%3E%BC%E6d%29%C7*3%C1C%A9%FA%13%D2t%B0thY%86O3&#39;</span>, <span style="color:#ae81ff">65</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">147</span>);
+</code></pre></div>
+<p>Now, here the interesting function is <code>Il1Iza()</code> which sends an HTTP POST request that can be seen in the pcap.
+A javascript dictionary <code>d</code> is RC4 encrypted with the key <code>flareon_is_so_cute</code> and base64 encoded.
+The POST request that the code needs to make is seen here:</p>
+
+<p><img src="/images/2016/11/06/ch10_post.png" alt="POST" /></p>
+
+<p>With that in mind, we can reverse the dictionary value using this python script:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> base64
+<span style="color:#f92672">import</span> binascii
+
+key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;flareon_is_so_cute&#39;</span>
+
+target <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ErZVpc7xaW3bf0h8ythQz62wRdQlMpg3nTEKPYsyE9OtxAU4fCbwYg8zfbxlTnLb3BpLkcSSeuiskPQoEeyrEdZts9jKxSRiiYlr0Q/PDPhri78Sm4vTsUx/ascx7lt0EEvP5YsvQTjW2QvS1+3dyk7x8c8QlQ==&#39;</span>
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">rc4</span>(data, key):
+    <span style="color:#e6db74">&#34;&#34;&#34;RC4 encryption and decryption method.&#34;&#34;&#34;</span>
+    S, j, out <span style="color:#f92672">=</span> range(<span style="color:#ae81ff">256</span>), <span style="color:#ae81ff">0</span>, []
+
+    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">256</span>):
+        j <span style="color:#f92672">=</span> (j <span style="color:#f92672">+</span> S[i] <span style="color:#f92672">+</span> ord(key[i <span style="color:#f92672">%</span> len(key)])) <span style="color:#f92672">%</span> <span style="color:#ae81ff">256</span>
+        S[i], S[j] <span style="color:#f92672">=</span> S[j], S[i]
+
+    i <span style="color:#f92672">=</span> j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+    <span style="color:#66d9ef">for</span> ch <span style="color:#f92672">in</span> data:
+        i <span style="color:#f92672">=</span> (i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">%</span> <span style="color:#ae81ff">256</span>
+        j <span style="color:#f92672">=</span> (j <span style="color:#f92672">+</span> S[i]) <span style="color:#f92672">%</span> <span style="color:#ae81ff">256</span>
+        S[i], S[j] <span style="color:#f92672">=</span> S[j], S[i]
+        out<span style="color:#f92672">.</span>append(chr(ord(ch) <span style="color:#f92672">^</span> S[(S[i] <span style="color:#f92672">+</span> S[j]) <span style="color:#f92672">%</span> <span style="color:#ae81ff">256</span>]))
+
+    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">.</span>join(out)
+
+target_hex <span style="color:#f92672">=</span> base64<span style="color:#f92672">.</span>b64decode(target)
+length <span style="color:#f92672">=</span> len(target_hex)
+
+s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> xrange(length):
+    <span style="color:#66d9ef">for</span> char <span style="color:#f92672">in</span> xrange(<span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x7f</span>):
+        current <span style="color:#f92672">=</span> s <span style="color:#f92672">+</span> chr(char)
+        <span style="color:#66d9ef">if</span> rc4(current, key)[i] <span style="color:#f92672">==</span> target_hex[i]:
+            s <span style="color:#f92672">+=</span> chr(char)
+            <span style="color:#66d9ef">break</span>
+
+<span style="color:#66d9ef">print</span> s</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">root@kali:~# python rc4.py 
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;g&#34;</span>:<span style="color:#e6db74">&#34;91a812d65f3fea132099f2825312edbb&#34;</span>,<span style="color:#e6db74">&#34;A&#34;</span>:<span style="color:#e6db74">&#34;16f2c65920ebeae43aabb5c9af923953&#34;</span>,<span style="color:#e6db74">&#34;p&#34;</span>:<span style="color:#e6db74">&#34;3a3d4c3d7e2a5d4c5c4d5b7e1c5a3c3e&#34;</span><span style="color:#f92672">}</span>
+root@kali:~#</code></pre></div>
+<p>Those parameters represent Angler&rsquo;s implementation of the Diffie-Hellman protocol to deliver encrypted shellcode.
+The base64 encoded response contains the missing <code>B</code> parameter, which enables the receiver to calculate the
+private key and decode the payload. An excellent analysis of the whole process was done by Kaspersky Labs
+in this <a href="https://securelist.com/blog/research/72097/attacking-diffie-hellman-protocol-implementation-in-the-angler-exploit-kit/">post</a>. They provide a Java program which enables us to retrieve the private key that was used.
+Plugging in our values into the program (and several hours later) we get:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">... snip ...
+<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> Processing <span style="color:#ae81ff">88000001</span>
+<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> Processing <span style="color:#ae81ff">89000001</span>
+<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> Processing <span style="color:#ae81ff">90000001</span>
+<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> Processing <span style="color:#ae81ff">91000001</span>
+<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> Processing <span style="color:#ae81ff">92000001</span>
+<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> Processing <span style="color:#ae81ff">93000001</span>
+<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> Processing <span style="color:#ae81ff">94000001</span>
+<span style="color:#f92672">[</span><span style="color:#ae81ff">13449667480594038</span><span style="color:#f92672">]</span>
+24c9de545f04e923ac5ec3bcfe82711f</code></pre></div>
+<p>With this key we can decode the received payload which contains some javascript and has the key <code>HEAPISMYHOME</code>
+for part2 (flash):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">alert</span>(<span style="color:#e6db74">&#34;Congratz! Wooohooooo, you&#39;ve done it!\n\nGoing thus far, you have already acquired the basic skillset of analyzing EK&#39;s traffic as well as any other web attacks along the way. You should be proud of yourself!\n\nIt is not the end though; it&#39;s only the beginning of our exciting journey!\n\nNow would be a good time to take a breather and grab some beer, coffee, redbull, monster, or water.\n\n\n\nClick &#39;OK&#39; when you&#39;re ready to show us what you&#39;re made of!&#34;</span>);
+<span style="color:#a6e22e">alert</span>(<span style="color:#e6db74">&#34;Cool, seems like you&#39;re ready to roll!\n\n\n\nThe key for part2 of the challenge is:\n&#39;HEAPISMYHOME&#39;\n\n\n\nYou will need this key to proceed with the flash challenge, which is also included in this pcap.\n\nGood luck! May the force be with you!&#34;</span>);
+</code></pre></div>
+<p>The flash file (which we extracted from the pcap) looks like this:</p>
+
+<p><img src="/images/2016/11/06/ch10_flash.png" alt="Flash" /></p>
+
+<p>After entering the key a few messages pop up, but nothing visible happens. We decompile the flash code with
+the help of JPEXS decompiler. Inside, we find a loader function:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-as" data-lang="as"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">d3cryp7AndL0ad</span>(<span style="color:#a6e22e">param1</span><span style="color:#f92672">:</span>String) <span style="color:#f92672">:</span> <span style="color:#a6e22e">void</span>
+{
+	 <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_loc2_</span><span style="color:#f92672">:</span>Loader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Loader();
+	 <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_loc3_</span><span style="color:#f92672">:</span>LoaderContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LoaderContext(<span style="color:#66d9ef">false</span><span style="color:#f92672">,</span>ApplicationDomain.<span style="color:#a6e22e">currentDomain</span><span style="color:#f92672">,</span><span style="color:#66d9ef">null</span>);
+	 <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_loc4_</span><span style="color:#f92672">:</span>Class <span style="color:#f92672">=</span> <span style="color:#a6e22e">Run_challenge1</span><span style="color:#f92672">;</span>
+	 <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_loc5_</span><span style="color:#f92672">:</span>ByteArray <span style="color:#f92672">=</span> <span style="color:#a6e22e">pr0udB3lly</span>(ByteArray(<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">_loc4_</span>())<span style="color:#f92672">,</span><span style="color:#a6e22e">param1</span>);
+	 <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_loc6_</span><span style="color:#f92672">:</span>String <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;1172ca0ede560b08d97b270400347ede&#34;</span><span style="color:#f92672">;</span>
+	 <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">MD5</span>.<span style="color:#a6e22e">hashBytes</span>(<span style="color:#a6e22e">_loc5_</span>) <span style="color:#f92672">==</span> <span style="color:#a6e22e">_loc6_</span>)
+	 {
+		<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">loaded</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+		<span style="color:#a6e22e">_loc2_</span>.<span style="color:#a6e22e">loadBytes</span>(<span style="color:#a6e22e">_loc5_</span>);
+	 }
+}</code></pre></div>
+<p>This function decodes another flash file and loads it into memory. JPEXS is actually capable of dumping
+loaded flash files from memory. Using this functionality we dump the loaded flash file onto disk.
+It turns out the dumped SWF is obfuscated with <code>secureSWF</code>. Loading this file into JPEXS again and
+deobfuscating, we get a somewhat readable AS3 code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-as" data-lang="as">... <span style="color:#a6e22e">snip</span> ...
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_loc1_</span><span style="color:#f92672">:</span>Object <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">root</span>.<span style="color:#a6e22e">loaderInfo</span>.<span style="color:#a6e22e">parameters</span><span style="color:#f92672">;</span>
+<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">_loc1_</span>.<span style="color:#a6e22e">flare</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;On&#34;</span>)
+{
+	<span style="color:#a6e22e">_loc2_</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Loader();
+	<span style="color:#a6e22e">_loc3_</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LoaderContext(<span style="color:#66d9ef">false</span><span style="color:#f92672">,</span><span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">root</span>.<span style="color:#a6e22e">loaderInfo</span>.<span style="color:#a6e22e">applicationDomain</span><span style="color:#f92672">,</span><span style="color:#66d9ef">null</span>);
+	<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">var_1</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Array();
+	<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">var_4</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ByteArray();
+	<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">var_39</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">_loc1_</span>.<span style="color:#a6e22e">x</span><span style="color:#f92672">;</span>
+	<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">var_5</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">_loc1_</span>.<span style="color:#a6e22e">y</span><span style="color:#f92672">;</span>
+... <span style="color:#a6e22e">snip</span> ...</code></pre></div>
+<p>From this snippet we can see that this code requires flashvars named <code>flare</code>, <code>x</code> and <code>y</code> passed to it.
+The code actually uses the x value as a key to RC4 decode some encoded blobs inside the file and y as
+an index to combine and load another SWF from the decoded data.</p>
+
+<p>Looking closer at the encoded blobs, it seems that two of them are completely unused inside the decryption
+routine. One of them has and interesting refercence to imgur - <code>Int3lIns1de_t3stImgurvnUziJP</code>. It references
+an image available at <a href="http://imgur.com/vnUziJP">http://imgur.com/vnUziJP</a></p>
+
+<p><img src="/images/2016/11/06/ch10_imgur.png" alt="Imgur" /></p>
+
+<p>So, at this point we have two unused encrypted blobs of data and an image which actually is the decryption of one
+of them. Given this and assuming the same RC4 encryption key for both of them, we can actually get the
+plain text by XOR-ing all of them together. The result gives us the <code>x</code> and the <code>y</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">x: 1BR0K3NCRYPT0FTW y: 47:14546,46:1617,35:239,4:47,35:394,3:575,32:4,49:4 ... snip ...</code></pre></div>
+<p>With these parameters we can load the last decrypted SWF in memory and dump it from there. For some strange reason
+I was unable to view the last flash file in JPEXS, so I traced it using <code>Sulo</code> (pin instrumentation plugin for flash).
+Inside the trace we get the decoding of our flag char by char:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">	flash.utils::ByteArray/writeByte <span style="color:#f92672">()</span>
+		this: 0x3e63c90
+		arg <span style="color:#ae81ff">0</span>: 0x61 : int
+	Returned: 0x4 : void <span style="color:#f92672">(</span>call depth: <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span>
+
+	flash.utils::ByteArray/writeByte <span style="color:#f92672">()</span>
+		this: 0x3e63c90
+		arg <span style="color:#ae81ff">0</span>: 0x6e : int
+	Returned: 0x4 : void <span style="color:#f92672">(</span>call depth: <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span>
+
+	flash.utils::ByteArray/writeByte <span style="color:#f92672">()</span>
+		this: 0x3e63c90
+		arg <span style="color:#ae81ff">0</span>: 0x67 : int
+	Returned: 0x4 : void <span style="color:#f92672">(</span>call depth: <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span></code></pre></div>
+<p>Combining all the <code>arg 0</code> values, we get the flag:</p>
+
+<p><code>angl3rcan7ev3nprim3@flare-on.com</code></p>
+            </div>
+            
+            <div class="post-comments">
+                
+            </div>
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>Copyright &copy; 2019  -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

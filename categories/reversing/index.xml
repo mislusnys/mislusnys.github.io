@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>reversing on InfoSec Blog</title>
+    <link>http://mislusnys.github.io/categories/reversing/</link>
+    <description>Recent content in reversing on InfoSec Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 06 Nov 2016 18:56:21 +0100</lastBuildDate>
+    
+	<atom:link href="http://mislusnys.github.io/categories/reversing/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Flare-On Reversing Challenges 2016</title>
+      <link>http://mislusnys.github.io/post/flareon3/</link>
+      <pubDate>Sun, 06 Nov 2016 18:56:21 +0100</pubDate>
+      
+      <guid>http://mislusnys.github.io/post/flareon3/</guid>
+      <description>&lt;p&gt;This autumn FireEye&amp;rsquo;s FLARE team hosted its third annual Flare-On Challenge.
+Flare-On is purely reverse engineering based CTF targeting malware analysts and
+security professionals. This year there were ten challenges and even though
+all very different, most of them were crypto related.&lt;/p&gt;
+
+&lt;p&gt;This post will present my solutions to all the challenges.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

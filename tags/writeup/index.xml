@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>writeup on InfoSec Blog</title>
+    <link>http://mislusnys.github.io/tags/writeup/</link>
+    <description>Recent content in writeup on InfoSec Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 02 May 2016 04:28:35 +0000</lastBuildDate>
+    
+	<atom:link href="http://mislusnys.github.io/tags/writeup/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Nebula Exploit Exercises</title>
+      <link>http://mislusnys.github.io/post/2016-05-01-nebula-exploit-exercises/</link>
+      <pubDate>Mon, 02 May 2016 04:28:35 +0000</pubDate>
+      
+      <guid>http://mislusnys.github.io/post/2016-05-01-nebula-exploit-exercises/</guid>
+      <description>&lt;p&gt;Ever since I stumbled upon exploit exercises website - I wanted to try the challenges. They have three main exploitable VMs: Nebula, Protostar and Fusion.
+The order represents the suggested progression path.&lt;/p&gt;
+
+&lt;p&gt;The welcome page reads:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;exploit-exercises.com provides a variety of virtual machines, documentation and challenges&lt;/em&gt;
+&lt;em&gt;that can be used to learn about a variety of computer&lt;/em&gt;
+&lt;em&gt;security issues such as privilege escalation, vulnerability analysis, exploit development,&lt;/em&gt;
+&lt;em&gt;debugging, reverse engineering, and general cyber security issues.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Here, I wrote down some of the findings while exploring the Nebula VM.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on InfoSec Blog</title>
+    <link>http://mislusnys.github.io/categories/</link>
+    <description>Recent content in Categories on InfoSec Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 06 Nov 2016 18:56:21 +0100</lastBuildDate>
+    
+	<atom:link href="http://mislusnys.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>ctf</title>
+      <link>http://mislusnys.github.io/categories/ctf/</link>
+      <pubDate>Sun, 06 Nov 2016 18:56:21 +0100</pubDate>
+      
+      <guid>http://mislusnys.github.io/categories/ctf/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>reversing</title>
+      <link>http://mislusnys.github.io/categories/reversing/</link>
+      <pubDate>Sun, 06 Nov 2016 18:56:21 +0100</pubDate>
+      
+      <guid>http://mislusnys.github.io/categories/reversing/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>linux</title>
+      <link>http://mislusnys.github.io/categories/linux/</link>
+      <pubDate>Sun, 26 Jun 2016 03:10:18 -0400</pubDate>
+      
+      <guid>http://mislusnys.github.io/categories/linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>owasp</title>
+      <link>http://mislusnys.github.io/categories/owasp/</link>
+      <pubDate>Fri, 06 Feb 2015 04:29:36 +0000</pubDate>
+      
+      <guid>http://mislusnys.github.io/categories/owasp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>web</title>
+      <link>http://mislusnys.github.io/categories/web/</link>
+      <pubDate>Fri, 06 Feb 2015 04:29:36 +0000</pubDate>
+      
+      <guid>http://mislusnys.github.io/categories/web/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>php</title>
+      <link>http://mislusnys.github.io/categories/php/</link>
+      <pubDate>Mon, 02 Feb 2015 08:40:17 +0000</pubDate>
+      
+      <guid>http://mislusnys.github.io/categories/php/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

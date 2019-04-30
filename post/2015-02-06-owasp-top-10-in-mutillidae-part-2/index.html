@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> OWASP Top 10 in Mutillidae (Part2) &middot; InfoSec Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.55.1" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="http://mislusnys.github.io/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=http://mislusnys.github.io/>ms@blog ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<a href="http://mislusnys.github.io/">/home/ms</a>
+				</li>
+				
+				
+				<li class="dropdown">
+                    
+            		<a href="/post">~/posts</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="http://mislusnys.github.io/post/2015-02-06-owasp-top-10-in-mutillidae-part-2/">OWASP Top 10 in Mutillidae (Part2)</a></h1>
+            <span class="post-date">Feb 6, 2015 </span>
+            <div class="post-content">
+                <p>This post is continuation from <a href="/blog/2015/02/03/owasp-top-10-in-mutillidae-part1">previous post</a>. We explore less common, however, still potentially very dangerous <em>OWASP Top 10</em> threats.
+Here we go through 6th to 10th places in the list.</p>
+
+<h2 id="a6-sensitive-data-exposure">A6 Sensitive Data Exposure</h2>
+
+<p>Many web applications do not properly protect sensitive data, such as credit cards, tax IDs, and authentication credentials. Attackers may steal or modify such weakly protected data to conduct credit card fraud, identity theft, or other crimes. Sensitive data deserves extra protection such as encryption at rest or in transit, as well as special precautions when exchanged with the browser.</p>
+
+<p>Sensitive data can be extracted from HTML storage, HTTP headers or in this example even from HTML comments in the page source code (<em>index.php</em>):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">&lt;!-- I think the database password is set to blank or perhaps samurai.
+It depends on whether you installed this web app from irongeeks site or
+are using it inside Kevin Johnsons Samurai web testing framework.
+It is ok to put the password in HTML comments because no user will ever see
+this comment. I remember that security instructor saying we should use the
+framework comment symbols (ASP.NET, JAVA, PHP, Etc.)
+rather than HTML comments, but we all know those
+security instructors are just making all this up. --&gt;			&lt;!-- End Content --&gt;</code></pre></div>
+<h2 id="a7-missing-function-level-access-control">A7 Missing Function Level Access Control</h2>
+
+<p>Most web applications verify function level access rights before making that functionality visible in the UI. However, applications need to perform the same access control checks on the server when each function is accessed. If requests are not verified, attackers will be able to forge requests in order to access functionality without proper authorization.</p>
+
+<p>First example in mutillidae is the <code>robots.txt</code> file:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">User-agent: *
+Disallow: passwords/
+Disallow: config.inc
+Disallow: classes/
+Disallow: javascript/
+Disallow: owasp-esapi-php/
+Disallow: documentation/
+Disallow: phpmyadmin/
+Disallow: includes/</code></pre></div>
+<p>While it prevents web crawlers from indexing these files and folders, it also gives the attacker information about the structure of the website. And in this case even provides with sensitive information directly (The <em>passwords</em> folder
+contains information about few legitimate accounts).</p>
+
+<p>Another &ldquo;security by obscurity&rdquo; example is &ldquo;secret&rdquo; administrative or configuration pages. Using Burp-Intruder in sniper mode or dirbuster we could find secret pages. Sometimes they are very obvious such as
+<em>secret.php, admin.php, administrator.php</em>. In our case <em>phpmyadmin.php</em> page is accessible to anyone, even anonymous user.</p>
+
+<h2 id="a8-cross-site-request-forgery-csrf">A8 Cross-Site Request Forgery (CSRF)</h2>
+
+<p>A CSRF attack forces a logged-on victim&rsquo;s browser to send a forged HTTP request, including the victim&rsquo;s session cookie and any other automatically included authentication information, to a vulnerable web application. This allows the attacker to force the victim&rsquo;s browser to generate requests the vulnerable application thinks are legitimate requests from the victim.</p>
+
+<p>The <code>add-to-your-blog.php</code> page is vulnerable to CSRF. We can intercept the POST request with burp:</p>
+
+<p><img src="/images/2015/02/06/burp.png" alt="burp" /></p>
+
+<p>Using this information we can construct a malicious form which submits the data upon loading the page (onload function):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">html</span>&gt;
+    &lt;<span style="color:#f92672">body</span> <span style="color:#a6e22e">onload</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;document.createElement(&#39;form&#39;).submit.call(document.getElementById(&#39;evil&#39;))&#34;</span>&gt;
+        &lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;evil&#34;</span> <span style="color:#a6e22e">action</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;http://192.168.1.66/mutillidae/index.php?page=add-to-your-blog.php&#34;</span> <span style="color:#a6e22e">method</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;post&#34;</span> <span style="color:#a6e22e">enctype</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;application/x-www-form-urlencoded&#34;</span>&gt; 
+            &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;hidden&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;csrf-token&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>/&gt; 
+            &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;hidden&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;blog_entry&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;I made you post this!&#34;</span>/&gt; 
+            &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;hidden&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;add-to-your-blog-php-submit-button&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Save+Blog+Entry&#34;</span>/&gt; 
+        &lt;/<span style="color:#f92672">form</span>&gt;
+    &lt;/<span style="color:#f92672">body</span>&gt;
+&lt;/<span style="color:#f92672">html</span>&gt;</code></pre></div>
+<p>If logged in user (with a valid session token) visits this malicious page, then a new blog post is made on the users behalf:</p>
+
+<p><img src="/images/2015/02/06/blog.png" alt="blog" /></p>
+
+<h2 id="a9-using-components-with-known-vulnerabilities">A9 Using Components with Known Vulnerabilities</h2>
+
+<p>Components, such as libraries, frameworks, and other software modules, almost always run with full privileges. If a vulnerable component is exploited, such an attack can facilitate serious data loss or server takeover. Applications using components with known vulnerabilities may undermine application defenses and enable a range of possible attacks and impacts.</p>
+
+<p>In our case obtaining information about the server components is pretty easy (<em>phpinfo.php</em>):</p>
+
+<p><img src="/images/2015/02/06/info.png" alt="info" /></p>
+
+<p>However, in this case the server components have no known vulnerabilities (at the time of writing).</p>
+
+<h2 id="a10-unvalidated-redirects-and-forwards">A10 Unvalidated Redirects and Forwards</h2>
+
+<p>Web applications frequently redirect and forward users to other pages and websites, and use untrusted data to determine the destination pages. Without proper validation, attackers can redirect victims to phishing or malware sites, or use forwards to access unauthorized pages.</p>
+
+<p>In our case the credits page is vulnerable to unvalidated redirect.</p>
+
+<p><code>http://192.168.1.66/mutillidae/index.php?page=redirectandlog.php&amp;forwardurl=http://www.owasp.org</code></p>
+
+<p>Here, the <code>forwardurl</code> specifies the redirection url and the attacker can point to a malicious page. Unvalidated redirects can increase the success rate in phishing attacks, because the first part of the link looks &ldquo;legit&rdquo;.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p><em>OWASP Top 10</em> describes most common web vulnerabilities found in the real world. <em>Mutillidae II</em> is deliberately vulnerable web application and contains at least one vulnerability from each OWASP category. It provides good
+insight into majority of web related exploitation methods.</p>
+            </div>
+            
+            <div class="post-comments">
+                
+            </div>
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>Copyright &copy; 2019  -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>
