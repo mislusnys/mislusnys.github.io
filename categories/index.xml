@@ -6,7 +6,7 @@
     <description>Recent content in Categories on InfoSec Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 06 Nov 2016 18:56:21 +0100</lastBuildDate>
+    <lastBuildDate>Sat, 04 May 2019 13:37:33 -0100</lastBuildDate>
     
 	<atom:link href="http://mislusnys.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,9 +14,18 @@
     <item>
       <title>ctf</title>
       <link>http://mislusnys.github.io/categories/ctf/</link>
-      <pubDate>Sun, 06 Nov 2016 18:56:21 +0100</pubDate>
+      <pubDate>Sat, 04 May 2019 13:37:33 -0100</pubDate>
       
       <guid>http://mislusnys.github.io/categories/ctf/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>htb</title>
+      <link>http://mislusnys.github.io/categories/htb/</link>
+      <pubDate>Sat, 04 May 2019 13:37:33 -0100</pubDate>
+      
+      <guid>http://mislusnys.github.io/categories/htb/</guid>
       <description></description>
     </item>
     

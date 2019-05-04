@@ -6,18 +6,18 @@
     <description>Recent content on InfoSec Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 08 Jan 2019 19:03:56 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 04 May 2019 13:37:33 -0100</lastBuildDate>
     
 	<atom:link href="http://mislusnys.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>About Me</title>
-      <link>http://mislusnys.github.io/about/</link>
-      <pubDate>Tue, 08 Jan 2019 19:03:56 +0200</pubDate>
+      <title>HTB BigHead Exploit - Small Buffer Exploit without Egghunter</title>
+      <link>http://mislusnys.github.io/post/htb-bighead/</link>
+      <pubDate>Sat, 04 May 2019 13:37:33 -0100</pubDate>
       
-      <guid>http://mislusnys.github.io/about/</guid>
-      <description> Certifications: </description>
+      <guid>http://mislusnys.github.io/post/htb-bighead/</guid>
+      <description>&lt;p&gt;This post will demonstrate one of a few ways to deal with small buffer space when exploiting buffer overflows on Windows. This is not a full writeup of the BigHead machine and only demonstrates the initial buffer overflow exploit using the LoadLibrary function.&lt;/p&gt;</description>
     </item>
     
     <item>

